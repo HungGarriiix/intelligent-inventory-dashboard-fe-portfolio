@@ -1,0 +1,35 @@
+[
+  {
+    "id": "d1",
+    "name": "Downtown Motors",
+    "address": "100 Main Street",
+    "city": "Springfield",
+    "state": "IL",
+    "phone": "555-0200",
+    "email": "info@downtownmotors.com",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "d2",
+    "name": "Westside Auto Group",
+    "address": "450 West Boulevard",
+    "city": "Shelbyville",
+    "state": "IL",
+    "phone": "555-0300",
+    "email": "info@westsideauto.com",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "d3",
+    "name": "Northpoint Dealership",
+    "address": "800 North Park Avenue",
+    "city": "Capital City",
+    "state": "IL",
+    "phone": "555-0400",
+    "email": "info@northpointdealer.com",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+]

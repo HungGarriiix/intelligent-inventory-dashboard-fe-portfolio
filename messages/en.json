@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "appTitle": "Inventory Dashboard",
+    "inventory": "Inventory",
+    "agingStock": "Aging Stock",
+    "login": "Login",
+    "logout": "Log out"
+  },
+  "filters": {
+    "dealership": "Dealership",
+    "make": "Make",
+    "model": "Model",
+    "age": "Age",
+    "all": "All",
+    "aging": "Aging",
+    "nonAging": "Non-Aging"
+  },
+  "stats": {
+    "totalVehicles": "Total Vehicles",
+    "agingVehicles": "Aging",
+    "actionedVehicles": "Actioned"
+  },
+  "table": {
+    "dealership": "Dealership",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "trim": "Trim",
+    "color": "Color",
+    "mileage": "Mileage",
+    "price": "Price",
+    "condition": "Condition",
+    "status": "Status",
+    "daysInInventory": "Days in Inventory"
+  },
+  "errors": {
+    "fetchFailed": "Failed to load data. Please try again.",
+    "submitFailed": "Failed to save. Please try again.",
+    "actionRequired": "Action label is required.",
+    "noVehicles": "No vehicles found.",
+    "noAgingVehicles": "No aging vehicles in inventory.",
+    "serverError": "Something went wrong",
+    "serverErrorMessage": "An unexpected error occurred. Please try again or return to the inventory.",
+    "notFound": "Page not found",
+    "notFoundMessage": "The page you're looking for doesn't exist."
+  },
+  "actions": {
+    "export": "Export CSV",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "goToInventory": "Go to Inventory"
+  },
+  "panel": {
+    "noActionRecorded": "No Action Recorded",
+    "actionLabel": "Action",
+    "notes": "Notes",
+    "history": "History",
+    "logAction": "Log Action",
+    "loggedBy": "by"
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Invalid email or password."
+  }
+}

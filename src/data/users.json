@@ -1,0 +1,35 @@
+[
+  {
+    "id": "u1",
+    "email": "jane.smith@dealergroup.com",
+    "passwordHash": "$2a$10$Zv30BseUp6QsrLY36uY/2uhCGmgSh1FCJsxkiXsojM.DyBlB3uUB6",
+    "role": "Manager",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "phone": "555-0100",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "u2",
+    "email": "robert.jones@dealergroup.com",
+    "passwordHash": "$2a$10$Zv30BseUp6QsrLY36uY/2uhCGmgSh1FCJsxkiXsojM.DyBlB3uUB6",
+    "role": "Manager",
+    "firstName": "Robert",
+    "lastName": "Jones",
+    "phone": "555-0101",
+    "createdAt": "2024-01-15T00:00:00Z",
+    "updatedAt": "2024-01-15T00:00:00Z"
+  },
+  {
+    "id": "u3",
+    "email": "admin@dealergroup.com",
+    "passwordHash": "$2a$10$Zv30BseUp6QsrLY36uY/2uhCGmgSh1FCJsxkiXsojM.DyBlB3uUB6",
+    "role": "Admin",
+    "firstName": "Sarah",
+    "lastName": "Williams",
+    "phone": "555-0102",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+]
