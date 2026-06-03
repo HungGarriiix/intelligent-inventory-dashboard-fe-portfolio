@@ -36,7 +36,7 @@ export interface MetricDefinition {
 // Table column definition
 export type SortDirection = 'asc' | 'desc';
 
-export interface ColumnDefinition<T = Record<string, unknown>> {
+export interface ColumnDefinition<T extends object = Record<string, unknown>> {
   key: keyof T & string;
   label: string; // i18n key
   sortable?: boolean;

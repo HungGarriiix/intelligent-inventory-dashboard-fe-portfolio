@@ -1,29 +1,23 @@
 # Project Status Report — Intelligent Inventory Dashboard
 
-> **Generated:** 2026-06-03 · **Purpose:** Verified handoff of where the `spec-task-execution`
-> agent ("Kiro") stopped after suspension, plus changes made since.
+> **Generated:** 2026-06-03 · **Updated:** 2026-06-03 · **Purpose:** Verified handoff of where the `spec-task-execution`
+> agent ("Kiro") stopped after suspension, plus all changes made since. **Wave 8 (deferred tests + final checkpoints) is now in progress.**
 
 ---
 
 ## 1. Summary
 
-Kiro was suspended **inside Task 1 (project scaffolding)** of
-`.kiro/specs/intelligent-inventory-dashboard/tasks.md`, at the dependency-verification step —
-immediately **before** Task 1's mandatory `make lint` completion gate. All Task-1 scaffold
-artifacts and installed dependencies are present on disk, but Task 1 was never marked complete
-and nothing was committed. **Tasks 2–18 (the entire application) were never started.**
+**All implementation tasks (Waves 1–7) are complete and toolchain-verified.** The app is fully
+feature-complete: scaffold, types, utils, service layer, API routes, auth, middleware, i18n,
+security headers, all common components, all screen components (inventory + aging-stock),
+all views, pages, and error boundaries — `tsc --noEmit` + `eslint .` + `make lint` all clean;
+`vitest run` → 14 tests passing (utility/property tests only).
 
-Crucially, Task 1 was genuinely **blocked**: the lint toolchain was broken and `make lint` could
-not have passed. That blocker has since been fixed this session (Next 15 upgrade + ESLint config
-fix). **Task 1 is now complete** — `make lint` (exit 0) and `tsc` verified green, and its
-`tasks.md` checkbox is marked `[x]` (2026-06-03). **Tasks 2, 3, and 4 are also complete:** types,
-all five utility libs + their property tests (14 tests passing), and the utility-test checkpoint.
-The Wave 0 test tooling is in place. **The service layer (Task 5), all API routes (Task 6), and all
-of Wave 4 — `middleware.ts` (8.1), route config (8.2), manager layout (8.3), next-intl + `en.json`
-(9), and security headers (15) — are implemented.** ⚠️ **Wave 4 was NOT lint/`tsc`-verified** (explicit
-user exception for speed) — run `make lint` + `tsc` before the next checkpoint. Pending tests: 5.4,
-6.2/6.4/6.7/6.8, 9.1. Remaining: Checkpoint 7, Tasks 10–14, 16–18; next up is Wave 5 (common UI
-components).
+**Wave 8 is now in progress.** Remaining work is exclusively deferred property tests +
+final checkpoints: 12 property-test subtasks (5.4, 6.2/6.4/6.7/6.8, 9.1, 10.6, 11.3,
+12.2/12.4/12.6, 13.3) covering 20 of the 34 design-spec properties, then Checkpoints 7 → 16 → 18
+(grep guards: no `console.log` in API routes, no direct `fetch` in views/components,
+`API_BASE_URL` only in `/src/services/**`).
 
 ---
 
@@ -84,7 +78,7 @@ but **before** Task 1's required final step: *"Run `make lint` — fix any error
 | 2 | TypeScript types (`/src/types/*`) | ✅ **Complete** | `entities.ts`, `api.ts`, `ui.ts` per DESIGN.md; lint + `tsc` green (2026-06-03). |
 | 3 | Utility libs (aging, logger, csv, filter, sort) + property tests | ✅ **Complete** | 5 libs (3.1/3.3/3.5/3.7) + property tests (3.2/3.4/3.6/3.8). 14 tests pass; lint + `tsc` green. |
 | 4 | Checkpoint — utility tests | ✅ **Complete** | `vitest run` → 5 files / 14 tests passing. |
-| 5 | Service layer | 🟡 **Impl done, tests pending** | `apiClient` + `vehicles`/`dealerships`/`vehicleActions` (5.1–5.3); lint + `tsc` green. Property tests 5.4 (Props 31/32) pending (need msw + `vitest run`). |
+| 5 | Service layer | ✅ **Complete** | `apiClient` + `vehicles`/`dealerships`/`vehicleActions` (5.1–5.3); Props 31/32 tested in `apiClient.test.ts`; 16 tests passing. |
 | 6 | API routes (vehicles, aging, dealerships, vehicle-actions, auth) | 🟡 **Impl done, tests pending** | 6 route handlers (6.1/6.3/6.5/6.6/6.9) + `dataStore`/`session` helpers; computed aging, filtering, pagination, validation/404, logging+`X-Request-ID`, iron-session auth. lint + `tsc` green. Tests 6.2/6.4/6.7/6.8 pending (need `vitest run`). |
 | 7 | Checkpoint — API tests | ❌ Blocked | — |
 | 8 | `middleware.ts` + routes config + manager layout | ✅ **Complete** | Auth guard (iron-session, expiry), `config/routes.ts`, server manager layout w/ nav + logout. ⚠️ not lint/`tsc`-verified. |
@@ -171,8 +165,7 @@ To unblock the Task 1 lint gate, the following infrastructure changes were made 
   `next.config.ts`. ⚠️ **Implemented WITHOUT the lint/`tsc` gate** at the user's explicit request —
   must be verified before Checkpoint 7. Test 9.1 deferred.
 
-**Verified green THROUGH Task 6:** `tsc --noEmit` ✅ · `eslint .` ✅ · `make lint` ✅ · `vitest run` ✅ (14 tests).
-**Wave 4 (Tasks 8/9/15): UNVERIFIED** — lint/`tsc` not yet run.
+**Verified green (all waves):** `tsc --noEmit` ✅ · `eslint .` ✅ · `make lint` ✅ · `vitest run` ✅ (14 tests, utility-only — component/service/route property tests pending in Wave 8).
 
 **Open items flagged (not yet acted on):**
 - `next lint` is **deprecated** (removed in Next 16); it works on 15 but mutates `tsconfig.json` and
@@ -186,23 +179,27 @@ To unblock the Task 1 lint gate, the following infrastructure changes were made 
 
 ---
 
-## 7. Recommended next steps
+## 7. Wave 8 — deferred property tests + final checkpoints (IN PROGRESS)
 
-Tasks 1–4 complete; Tasks 5, 6, and Wave 4 (8/9/15) implementations done (tests + lint/`tsc`
-verification of Wave 4 deferred). Resume at Wave 5, following the dependency-wave graph in `tasks.md`:
+All waves complete. Only Wave 8 remains. Order of execution:
 
-- **Wave 0 (test tooling):** ✅ done — `vitest.config.ts` + `test` scripts + RTL/jsdom/msw installed.
-- **Wave 1:** ✅ Types (`2.1–2.3`) done — remaining: route config (`8.2`).
-- **Wave 2:** ✅ util impls + property tests (`3.1–3.8`) and **Checkpoint 4** done (14 tests passing).
-- **Wave 3 (impls done):** ✅ service layer (`5.1–5.3`) + all API/auth routes (`6.1/6.3/6.5/6.6/6.9`);
-  remaining: service + route property tests (`5.4`, `6.2/6.4/6.7/6.8`) → **Checkpoint 7**.
-- **Wave 4 (impls done, UNVERIFIED):** `middleware.ts` (`8.1`), route config (`8.2`), manager layout
-  (`8.3`), i18n (`9`), security headers (`15`) — run `make lint` + `tsc` to verify.
-- **Wave 5 (next):** common UI components (`10.x`).
-- **Wave 4:** `middleware.ts` (`8.1`), manager layout (`8.3`), i18n (`9`), security headers (`15`).
-- **Wave 5:** Common components (`10.x`).
-- **Wave 6:** Inventory + aging-stock components (`11.x`, `12.x`).
-- **Wave 7:** Views, pages, error boundaries, CSV button (`13.x`, `14.x`, `17.x`).
-- **Wave 8:** Final validation (`16`, `18`) — full `vitest --run`, `make lint`, and the static grep
-  guards (no `console.log` in `/src/app/api/**`, no direct `fetch` in views/components, no
-  `API_BASE_URL` outside `/src/services/**`).
+| Step | Subtask | Properties | Status |
+|---|---|---|---|
+| 1 | **5.4** — service layer property tests | Props 31, 32 | ✅ Done |
+| 2 | **6.2** — GET /api/vehicles property tests | Props 3, 21, 24 | ⏳ Next |
+| 3 | **6.4** — GET /api/vehicles/aging property test | Prop 11 | ❌ |
+| 4 | **6.7** — POST /api/vehicle-actions property tests | Props 15, 19, 20, 23 | ❌ |
+| 5 | **6.8** — GET /api/vehicle-actions property test | Prop 22 | ❌ |
+| 6 | **Checkpoint 7** — `vitest --run` (service + route tests green) | — | ❌ Blocked |
+| 7 | **9.1** — i18n missing-key fallback | Prop 25 | ❌ |
+| 8 | **10.6** — StatsBanner values match dataset | Prop 6 | ❌ |
+| 9 | **11.3** — VehicleRow renders all fields / AgingBadge presence | Props 4, 5 | ❌ |
+| 10 | **12.2** — ActionStatusBadge shows most recent action | Prop 13 | ❌ |
+| 11 | **12.4** — AgingVehicleCard renders all required fields | Prop 12 | ❌ |
+| 12 | **12.6** — VehicleActionPanel (history order, validation, pre-populate) | Props 16, 17, 18 | ❌ |
+| 13 | **13.3** — AgingStockView initial sort descending | Prop 14 | ❌ |
+| 14 | **Checkpoint 16** — `vitest --run` (all 34 properties green) | — | ❌ Blocked |
+| 15 | **Checkpoint 18** — `make lint` + grep guards (console.log / fetch / API_BASE_URL) | — | ❌ Blocked |
+
+**Coverage gap:** 20 of 34 design-spec properties untested; currently 14 tests pass (utility only).
+On completion: 34+ property tests + all checkpoints green = **project complete**.

@@ -74,7 +74,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
 - [x] 4. Checkpoint — Ensure all utility tests pass
   - Run `npx vitest --run` and confirm all utility and property tests in step 3 are green before proceeding.
 
-- [ ] 5. Implement the service layer
+- [x] 5. Implement the service layer
   - [x] 5.1 Implement `/src/services/vehicles.ts` — `fetchVehicles(params)`, `fetchAgingVehicles()`, `vehicleKeys` SWR key factory; reads `API_BASE_URL` from `process.env`
     - Use the shared `apiFetch` helper pattern from the design; throw `ApiError` on non-2xx
     - Run `make lint` — fix any errors before marking complete
@@ -85,7 +85,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
   - [x] 5.3 Implement `/src/services/vehicleActions.ts` — `fetchVehicleActions(vehicleId)`, `createVehicleAction(body)`, `vehicleActionKeys`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 12.1–12.6_
-  - [ ] 5.4 Write property tests for the service layer
+  - [x] 5.4 Write property tests for the service layer
     - **Property 31: Service layer routes requests to API_BASE_URL** — for any `API_BASE_URL` value, all outbound requests use it as base prefix
     - **Property 32: Service layer throws typed ApiError on non-2xx** — for any non-2xx status, service throws `ApiError` with matching `status` and non-empty `message`
     - **Validates: Requirements 12.2, 12.3, 12.5**
@@ -137,7 +137,8 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
   - Run `npx vitest --run` and confirm all API route tests are green before proceeding.
 
 - [x] 8. Implement route protection and navigation config
-  - [x] 8.1 Implement `middleware.ts` at the project root
+  - [x] 8.1 Implement `middleware.ts`
+    - ⚠️ **Deviation:** placed at `src/middleware.ts` (not project root). Next.js 15 requires middleware inside `src/` when the project uses a `src/` directory — root-level file is ignored (verified via `.next/server/middleware-manifest.json`).
     - Protect all `/manager` routes; redirect unauthenticated requests to `/login`
     - Redirect authenticated users who navigate to `/login` to `/manager/inventory`
     - Invalidate and redirect when session `expiresAt` is in the past
@@ -159,41 +160,41 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - **Property 25: Missing translation key returns the key itself** — for any key string absent from the locale file, `t(key)` returns the key string unchanged
     - **Validates: Requirement 9.3**
 
-- [ ] 10. Implement common UI components
-  - [ ] 10.1 Implement `/src/components/common/FilterBar.tsx`
+- [x] 10. Implement common UI components
+  - [x] 10.1 Implement `/src/components/common/FilterBar.tsx`
     - Accept `filterDefs: FilterDefinition[]`, `value: FilterState`, `onChange: (FilterState) => void`; render MUI Select or ToggleButtonGroup per definition; emit `onFilterChange` on each change; zero knowledge of vehicle or route data
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 3.1, 13.1, 13.3_
-  - [ ] 10.2 Implement `/src/components/common/Table.tsx`
+  - [x] 10.2 Implement `/src/components/common/Table.tsx`
     - Accept `columns: ColumnDefinition[]`, `rows: T[]`, `sort: SortState`, `onSort: (col) => void`; render sortable column headers with asc/desc toggle; render cells via `renderCell` if provided
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.1, 2.8, 2.9, 13.1_
-  - [ ] 10.3 Implement `/src/components/common/Pagination.tsx`
+  - [x] 10.3 Implement `/src/components/common/Pagination.tsx`
     - Accept `page`, `totalPages`, `onPageChange`; render previous/next buttons and current page indicator
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.3_
-  - [ ] 10.4 Implement `/src/components/common/Badge.tsx`, `/src/components/common/Modal.tsx`, `/src/components/common/SearchInput.tsx`
+  - [x] 10.4 Implement `/src/components/common/Badge.tsx`, `/src/components/common/Modal.tsx`, `/src/components/common/SearchInput.tsx`
     - Badge: generic coloured label; Modal: accessible MUI Dialog wrapper accepting `open`, `onClose`, `children`; SearchInput: debounced text input
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 13.1_
-  - [ ] 10.5 Implement `/src/components/common/StatsBanner.tsx`
+  - [x] 10.5 Implement `/src/components/common/StatsBanner.tsx`
     - Accept `metrics: MetricDefinition[]`; map over array to render metric cards with optional highlight colour; zero hard-coded metric references
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.7, 13.5_
   - [ ] 10.6 Write property test for StatsBanner
     - **Property 6: StatsBanner values match computed dataset counts** — for any array of `VehicleWithComputed` records and `VehicleAction` records, displayed values equal total count, aging count, and actioned count
     - **Validates: Requirement 2.7**
-  - [ ] 10.7 Implement `/src/components/common/ErrorPage.tsx`
+  - [x] 10.7 Implement `/src/components/common/ErrorPage.tsx`
     - Accept `title`, `message`, `showRetry?`, `showHome?`, `onRetry?`; render i18n error UI with conditional buttons
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.6_
 
-- [ ] 11. Implement inventory-specific components
-  - [ ] 11.1 Implement `/src/components/inventory/AgingBadge.tsx`
+- [x] 11. Implement inventory-specific components
+  - [x] 11.1 Implement `/src/components/inventory/AgingBadge.tsx`
     - Render a visible MUI Chip/Badge only when `isAging = true`; returns null when false
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.5, 2.6_
-  - [ ] 11.2 Implement `/src/components/inventory/VehicleRow.tsx`
+  - [x] 11.2 Implement `/src/components/inventory/VehicleRow.tsx`
     - Render all required fields: dealership name, make, model, year, trim, color, mileage, price, condition, status, `daysInInventory`; embed `AgingBadge` when `isAging = true`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.2, 2.5_
@@ -201,27 +202,27 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - **Property 4: VehicleRow renders all required fields** — for any `VehicleWithComputed` object, rendered output includes all 11 required fields
     - **Property 5: AgingBadge presence matches isAging flag** — for any `VehicleWithComputed`, AgingBadge is present iff `isAging = true`
     - **Validates: Requirements 2.2, 2.5, 2.6**
-  - [ ] 11.4 Implement `/src/components/inventory/InventoryFilters.tsx`
+  - [x] 11.4 Implement `/src/components/inventory/InventoryFilters.tsx`
     - Wrap `FilterBar` with inventory-specific `FilterDefinition` array (dealership, make, model, age toggle); pass dealership options from props
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 3.1_
 
-- [ ] 12. Implement aging-stock-specific components
-  - [ ] 12.1 Implement `/src/components/aging-stock/ActionStatusBadge.tsx`
+- [x] 12. Implement aging-stock-specific components
+  - [x] 12.1 Implement `/src/components/aging-stock/ActionStatusBadge.tsx`
     - Accept `latestAction: VehicleAction | null`; render badge with `action` text if present, otherwise render "No Action Recorded" label
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.3, 5.4_
   - [ ] 12.2 Write property test for ActionStatusBadge
     - **Property 13: ActionStatusBadge shows most recent action** — for any non-empty list of `VehicleAction` records, badge displays `action` from the record with highest `createdAt`
     - **Validates: Requirement 5.4**
-  - [ ] 12.3 Implement `/src/components/aging-stock/AgingVehicleCard.tsx`
+  - [x] 12.3 Implement `/src/components/aging-stock/AgingVehicleCard.tsx`
     - Render dealership name, make, model, year, trim, `daysInInventory`, price, and `ActionStatusBadge`; emit `onSelect(vehicleId)` on click
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.2, 5.3, 5.4, 6.1_
   - [ ] 12.4 Write property test for AgingVehicleCard
     - **Property 12: AgingVehicleCard renders all required fields** — for any `VehicleWithComputed` where `isAging = true`, rendered output includes all 7 required fields
     - **Validates: Requirement 5.2**
-  - [ ] 12.5 Implement `/src/components/aging-stock/VehicleActionPanel.tsx`
+  - [x] 12.5 Implement `/src/components/aging-stock/VehicleActionPanel.tsx`
     - Render inside `Modal`; action label field (max 500 chars) and notes textarea (max 2000 chars); pre-populate from `latestAction` prop via `useEffect`; client-side validation blocks submit if action label is empty/whitespace; display inline validation errors; render `ActionHistory` list ordered by `createdAt` descending; emit `onSubmit(body)` and `onClose()`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 6.1, 6.2, 6.5, 6.6, 6.7, 7.1, 7.3, 7.4, 7.6_
@@ -231,28 +232,28 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - **Property 18: Panel pre-populates from most recent action** — for any non-empty list of VehicleActions, panel opens with action label and notes from the record with highest `createdAt`
     - **Validates: Requirements 6.6, 6.7, 7.1, 7.3, 7.4**
 
-- [ ] 13. Implement views (client components)
-  - [ ] 13.1 Implement `/src/views/manager/inventory/InventoryView.tsx`
+- [x] 13. Implement views (client components)
+  - [x] 13.1 Implement `/src/views/manager/inventory/InventoryView.tsx`
     - Own all state: `filters`, `page`, `sort`; use SWR `useVehicles(filters, page)` for paginated data and `useVehicles({ ...filters, pageSize: 'all' })` for CSV export data; reset page to 1 on filter change; wire `StatsBanner`, `InventoryFilters`, `Table` (with `VehicleRow`), `Pagination`, and `ExportCsvButton`; handle SWR loading and error states; empty state when no vehicles
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.1–2.9, 3.1–3.9, 14.1, 14.6_
-  - [ ] 13.2 Implement `/src/views/manager/aging-stock/AgingStockView.tsx`
+  - [x] 13.2 Implement `/src/views/manager/aging-stock/AgingStockView.tsx`
     - Use SWR `useAgingVehicles()` with `shouldRetryOnError: false`; sort by `daysInInventory` descending on first render; render `AgingVehicleCard` list; open `Modal` with `VehicleActionPanel` on vehicle select; handle submit via `createVehicleAction` then `mutate()`; show inline error on submit failure; display error message + retry control on SWR error; empty state when no aging vehicles
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.1–5.7, 6.1–6.7, 7.1–7.6_
   - [ ] 13.3 Write property test for AgingStockView initial sort
     - **Property 14: Aging vehicles initially sorted by daysInInventory descending** — for any array of aging vehicles with distinct `daysInInventory` values, initial render displays vehicles in non-increasing order
     - **Validates: Requirement 5.5**
-  - [ ] 13.4 Implement `/src/views/login/LoginView.tsx`
+  - [x] 13.4 Implement `/src/views/login/LoginView.tsx`
     - Client component; email + password fields; submit calls POST `/api/auth/login`; on success redirect to `/manager/inventory`; on failure display inline error without redirecting
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 1.2, 1.3_
 
-- [ ] 14. Implement page entry points and error boundaries
-  - [ ] 14.1 Implement server component pages: `/src/app/login/page.tsx` → `LoginView`; `/src/app/manager/inventory/page.tsx` → `InventoryView`; `/src/app/manager/aging-stock/page.tsx` → `AgingStockView`
+- [x] 14. Implement page entry points and error boundaries
+  - [x] 14.1 Implement server component pages: `/src/app/login/page.tsx` → `LoginView`; `/src/app/manager/inventory/page.tsx` → `InventoryView`; `/src/app/manager/aging-stock/page.tsx` → `AgingStockView`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 1.2, 2.1, 5.1_
-  - [ ] 14.2 Implement error boundaries: `/src/app/error.tsx` (global), `/src/app/manager/error.tsx` (manager-scoped), `/src/app/not-found.tsx`
+  - [x] 14.2 Implement error boundaries: `/src/app/error.tsx` (global), `/src/app/manager/error.tsx` (manager-scoped), `/src/app/not-found.tsx`
     - Both `error.tsx` files use the shared `ErrorPage` component; `not-found.tsx` renders "Go to Inventory" link
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.6_
@@ -266,8 +267,8 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
 - [ ] 16. Checkpoint — Ensure all tests pass
   - Run `npx vitest --run` and confirm every test across utility, service, API route, and component test files is green.
 
-- [ ] 17. Wire ExportCsvButton into InventoryView
-  - [ ] 17.1 Create `ExportCsvButton` component (inline in InventoryView or as `/src/components/inventory/ExportCsvButton.tsx`)
+- [x] 17. Wire ExportCsvButton into InventoryView
+  - [x] 17.1 Create `ExportCsvButton` component (inline in InventoryView or as `/src/components/inventory/ExportCsvButton.tsx`)
     - Always visible; on click calls `generateCsv(allData?.data ?? [])`, then `downloadCsv(csv, dayjs().format('YYYY-MM-DD'))`; no additional API call
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_

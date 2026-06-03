@@ -144,14 +144,21 @@ This is how we work in this repo:
 6. **Do not commit or push** unless the user asks. Branch off the default branch first if you do.
 7. **Keep `STATUS.md` current** as the source of truth for "where we are."
 8. Don't add `eslint-disable` without a justification comment.
+9. **On any structural or requirement change** (new file, moved file, spec deviation, scope change): update `.kiro/specs/intelligent-inventory-dashboard/tasks.md` (checkbox state + deviation notes) and `CLAUDE.md` section 8 (status snapshot) before reporting complete.
 
 ---
 
 ## 8. Current status (snapshot — `STATUS.md` is authoritative)
 
-- **Stage:** scaffolding. **Task 1** (scaffold) is materially done and its `make lint` blocker is fixed;
-  Tasks **2–18 not started**. No feature code, API, middleware, i18n, security headers, or tests yet.
-- **Toolchain green:** `tsc`, `eslint .`, `make lint` all pass.
-- **Known gaps/inconsistencies:** Next 15 vs spec "14"; Wave 0 test tooling missing; `next lint`
-  deprecation; `PLANNING.md` "Certified Pre-Owned" vs data `CPO`. See `STATUS.md` for the full list.
-- **Next up:** close Task 1 → Wave 0 → Wave 1 (Task 2 types).
+- **Stage:** Wave 8 — deferred property tests + final checkpoints.
+- **All implementation complete (Waves 1–7):** scaffold, types, utils, service layer, API routes, auth,
+  middleware, i18n, security headers, all components (common + inventory + aging-stock), all views,
+  pages, error boundaries, CSV export. `tsc --noEmit` + `eslint .` + `make lint` all clean.
+- **Tests:** 14 utility/property tests passing. 20 of 34 design-spec properties still untested (Wave 8).
+- **Runtime bugs fixed (2026-06-03/04):**
+  - `LogoutButton`: direct `fetch` in component (violates service-layer rule) + `router.push/refresh` race. Fixed: use `logout()` service + `window.location.href`.
+  - `LoginView`: `router.push + router.refresh()` caused SWR remount → stuck `isLoading`. Fixed: `window.location.href`.
+  - `middleware.ts` location: was at project root — ignored by Next.js 15 when `src/` exists. Moved to `src/middleware.ts`. Verified via `.next/server/middleware-manifest.json`.
+  - CSP `EvalError`: Next.js dev HMR (`react-refresh-utils`) needs `'unsafe-eval'`. Added dev-only to `script-src` in `next.config.ts`.
+- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`.
+- **Next up:** Task 6.2 — property tests for `GET /api/vehicles` (Props 3, 21, 24).
