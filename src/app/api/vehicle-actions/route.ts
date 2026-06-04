@@ -17,11 +17,9 @@ import type {
   GetVehicleActionsResponse,
 } from '@/types/api';
 import type { VehicleAction, VehicleActionWithAuthor } from '@/types/entities';
+import { createVehicleActionSchema } from '@/schemas/vehicleAction';
 
 export const runtime = 'nodejs';
-
-const MAX_ACTION_LEN = 500;
-const MAX_NOTES_LEN = 2000;
 
 export async function GET(req: Request): Promise<NextResponse> {
   const correlationId = generateCorrelationId();
@@ -74,26 +72,13 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   try {
     const raw: unknown = await req.json().catch(() => null);
-    if (raw === null || typeof raw !== 'object') {
-      throw new ApiError(400, 'Request body must be a JSON object.', 'body');
+    const parsed = createVehicleActionSchema.safeParse(raw);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      const field = issue.path[0] as string | undefined;
+      throw new ApiError(400, issue.message, field);
     }
-    const body = raw as Record<string, unknown>;
-    if (!body.vehicleId) throw new ApiError(400, 'The vehicleId field is required.', 'vehicleId');
-    if (!body.userId) throw new ApiError(400, 'The userId field is required.', 'userId');
-    if (!body.action) throw new ApiError(400, 'The action field is required.', 'action');
-
-    const vehicleId = String(body.vehicleId);
-    const userId = String(body.userId);
-    const action = String(body.action);
-    const notes =
-      body.notes === undefined || body.notes === null ? '' : String(body.notes);
-
-    if (action.length > MAX_ACTION_LEN) {
-      throw new ApiError(400, `The action field must be ${MAX_ACTION_LEN} characters or fewer.`, 'action');
-    }
-    if (notes.length > MAX_NOTES_LEN) {
-      throw new ApiError(400, `The notes field must be ${MAX_NOTES_LEN} characters or fewer.`, 'notes');
-    }
+    const { vehicleId, userId, action, notes = '' } = parsed.data;
 
     const [vehicles, users] = await Promise.all([readVehicles(), readUsers()]);
     if (!vehicles.some((v) => v.id === vehicleId)) {

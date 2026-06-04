@@ -5,6 +5,7 @@ import { Alert, Button, Paper, Stack, TextField, Typography } from '@mui/materia
 import { login } from '@/services/auth';
 import { ApiError } from '@/types/api';
 import { routes } from '@/config/routes';
+import { loginSchema } from '@/schemas/auth';
 
 export default function LoginView() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,11 @@ export default function LoginView() {
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     setError(null);
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0].message);
+      return;
+    }
     setLoading(true);
     try {
       await login(email, password);
@@ -29,7 +35,7 @@ export default function LoginView() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-background">
       <Paper variant="outlined" className="w-full max-w-sm p-8">
         <form onSubmit={(e) => { void handleSubmit(e); }}>
           <Stack spacing={3}>

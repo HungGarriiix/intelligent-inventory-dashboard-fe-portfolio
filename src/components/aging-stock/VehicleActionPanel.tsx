@@ -16,6 +16,7 @@ import {
 import dayjs from 'dayjs';
 import type { CreateVehicleActionBody } from '@/types/api';
 import type { VehicleActionWithAuthor } from '@/types/entities';
+import { createVehicleActionSchema } from '@/schemas/vehicleAction';
 
 const MAX_ACTION = 500;
 const MAX_NOTES = 2000;
@@ -57,8 +58,10 @@ export default function VehicleActionPanel({
   }, [latestAction?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSubmit(): void {
-    if (!actionLabel.trim()) {
-      setValidationError('Action label is required.');
+    const formSchema = createVehicleActionSchema.pick({ action: true, notes: true });
+    const parsed = formSchema.safeParse({ action: actionLabel.trim(), notes });
+    if (!parsed.success) {
+      setValidationError(parsed.error.issues[0].message);
       return;
     }
     setValidationError(null);

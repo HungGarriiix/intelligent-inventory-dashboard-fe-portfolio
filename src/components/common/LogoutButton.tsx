@@ -17,7 +17,7 @@ export default function LogoutButton() {
       onClick={() => {
         void handleLogout();
       }}
-      className="text-sm text-gray-600 hover:underline"
+      className="text-sm text-nav-muted hover:text-nav-text transition-colors"
     >
       {t('logout')}
     </button>

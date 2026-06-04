@@ -12,6 +12,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "nav-bg": "var(--color-nav-bg)",
+        "nav-text": "var(--color-nav-text)",
+        "nav-border": "var(--color-nav-border)",
+        "nav-muted": "var(--color-nav-muted)",
       },
     },
   },

@@ -10,7 +10,20 @@ import { CacheProvider } from '@emotion/react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import type { ReactNode } from 'react';
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6366f1',
+      light: '#818cf8',
+      dark: '#4f46e5',
+      contrastText: '#ffffff',
+    },
+    background: {
+      default: '#f1f5f9',
+      paper: '#ffffff',
+    },
+  },
+});
 
 export default function ThemeRegistry({ children }: { children: ReactNode }) {
   const [registry] = useState<{

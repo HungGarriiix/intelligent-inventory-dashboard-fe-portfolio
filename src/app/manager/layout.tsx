@@ -15,15 +15,15 @@ export default async function ManagerLayout({
   const t = await getTranslations();
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="flex items-center justify-between border-b border-gray-200 px-6 py-3">
+      <header className="flex items-center justify-between bg-nav-bg border-b border-nav-border px-6 py-3">
         <div className="flex items-center gap-8">
-          <span className="font-semibold">{t('nav.appTitle')}</span>
+          <span className="font-semibold text-nav-text">{t('nav.appTitle')}</span>
           <nav className="flex gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 href={item.path}
-                className="text-sm text-gray-700 hover:underline"
+                className="text-sm text-nav-text hover:text-white transition-colors"
               >
                 {t(item.label)}
               </Link>
