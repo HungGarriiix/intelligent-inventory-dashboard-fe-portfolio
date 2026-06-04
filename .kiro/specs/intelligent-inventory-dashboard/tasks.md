@@ -90,14 +90,14 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - **Property 32: Service layer throws typed ApiError on non-2xx** — for any non-2xx status, service throws `ApiError` with matching `status` and non-empty `message`
     - **Validates: Requirements 12.2, 12.3, 12.5**
 
-- [ ] 6. Implement API routes
+- [x] 6. Implement API routes
   - [x] 6.1 Implement `GET /api/vehicles` — `/src/app/api/vehicles/route.ts`
     - Read `vehicles.json` and `dealerships.json`; apply filter params (`dealership`, `make`, `model`, `age`); compute `isAging`/`daysInInventory` via `computeAgingFields`; paginate to 25 per page; support `pageSize=all` for CSV export
     - Join `dealershipName` from dealerships; return `GetVehiclesResponse` shape
     - Attach `X-Request-ID` header; log via `logger`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 4.3, 4.4, 8.1, 8.7, 8.8, 11.1–11.9_
-  - [ ] 6.2 Write property tests for `GET /api/vehicles`
+  - [x] 6.2 Write property tests for `GET /api/vehicles`
     - **Property 3: Vehicle API response always includes computed fields** — every item in `data` has `isAging` (boolean) and `daysInInventory` (non-negative integer)
     - **Property 21: GET /api/vehicles returns correctly filtered and paginated results** — for any filter combo and page, result is the correct slice of matching records with correct `total`
     - **Property 24: Out-of-range page returns empty data with correct total** — for any `p` where `(p-1)*25 >= total`, response is `{ data: [], total: N, page: p, pageSize: 25 }`
@@ -106,7 +106,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Return all vehicles where computed `isAging = true`; attach `X-Request-ID`; log via `logger`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 4.3, 4.4, 5.1, 8.2_
-  - [ ] 6.4 Write property test for `GET /api/vehicles/aging`
+  - [x] 6.4 Write property test for `GET /api/vehicles/aging`
     - **Property 11: Aging Stock View contains only isAging vehicles** — response contains exactly vehicles where `isAging = true`, none omitted, none extra
     - **Validates: Requirement 5.1, 8.2**
   - [x] 6.5 Implement `GET /api/dealerships` — `/src/app/api/dealerships/route.ts`
@@ -118,13 +118,13 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - POST: validate body (`vehicleId`, `userId`, `action` required; character limits); verify `vehicleId` exists (404 if not); persist new record to `vehicle-actions.json`; return HTTP 201 with created record; attach `X-Request-ID`; log via `logger`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 6.3, 7.2, 7.3, 8.4, 8.5, 8.6, 8.9, 10.5, 10.6_
-  - [ ] 6.7 Write property tests for `POST /api/vehicle-actions`
+  - [x] 6.7 Write property tests for `POST /api/vehicle-actions`
     - **Property 15: VehicleAction persisted record contains all required fields** — for any valid payload, response contains all submitted fields plus non-empty `id` and `createdAt`
     - **Property 19: Update preserves prior action history** — for any N existing records, after a successful POST there are N+1 records, all prior unchanged
     - **Property 20: Character limits enforced on action label and notes** — action label > 500 or notes > 2000 returns HTTP 400, no write occurs
     - **Property 23: POST returns 400 for each missing required field** — for any body missing `vehicleId`, `userId`, or `action`, returns 400 with `field` and `message` keys
     - **Validates: Requirements 6.3, 7.2, 7.6, 8.6, 10.5, 10.6**
-  - [ ] 6.8 Write property test for `GET /api/vehicle-actions`
+  - [x] 6.8 Write property test for `GET /api/vehicle-actions`
     - **Property 22: GET /api/vehicle-actions filters correctly by vehicleId** — for any dataset spanning multiple vehicleIds, result contains exactly records where `vehicleId = X`
     - **Validates: Requirement 8.4**
   - [x] 6.9 Implement auth API routes — `/src/app/api/auth/login/route.ts` and `/src/app/api/auth/logout/route.ts`
@@ -133,7 +133,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 1.2, 1.3, 1.5_
 
-- [ ] 7. Checkpoint — Ensure all API route tests pass
+- [x] 7. Checkpoint — Ensure all API route tests pass
   - Run `npx vitest --run` and confirm all API route tests are green before proceeding.
 
 - [x] 8. Implement route protection and navigation config
@@ -156,7 +156,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
   - Create `/messages/en.json` with all translation keys: `nav`, `filters`, `stats`, `table`, `errors`, `actions`, `panel`
   - Run `make lint` — fix any errors before marking complete
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
-  - [ ] 9.1 Write property test for missing translation key fallback
+  - [x] 9.1 Write property test for missing translation key fallback
     - **Property 25: Missing translation key returns the key itself** — for any key string absent from the locale file, `t(key)` returns the key string unchanged
     - **Validates: Requirement 9.3**
 
@@ -181,7 +181,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Accept `metrics: MetricDefinition[]`; map over array to render metric cards with optional highlight colour; zero hard-coded metric references
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.7, 13.5_
-  - [ ] 10.6 Write property test for StatsBanner
+  - [x] 10.6 Write property test for StatsBanner
     - **Property 6: StatsBanner values match computed dataset counts** — for any array of `VehicleWithComputed` records and `VehicleAction` records, displayed values equal total count, aging count, and actioned count
     - **Validates: Requirement 2.7**
   - [x] 10.7 Implement `/src/components/common/ErrorPage.tsx`
@@ -198,7 +198,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Render all required fields: dealership name, make, model, year, trim, color, mileage, price, condition, status, `daysInInventory`; embed `AgingBadge` when `isAging = true`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 2.2, 2.5_
-  - [ ] 11.3 Write property tests for VehicleRow
+  - [x] 11.3 Write property tests for VehicleRow
     - **Property 4: VehicleRow renders all required fields** — for any `VehicleWithComputed` object, rendered output includes all 11 required fields
     - **Property 5: AgingBadge presence matches isAging flag** — for any `VehicleWithComputed`, AgingBadge is present iff `isAging = true`
     - **Validates: Requirements 2.2, 2.5, 2.6**
@@ -212,21 +212,21 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Accept `latestAction: VehicleAction | null`; render badge with `action` text if present, otherwise render "No Action Recorded" label
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.3, 5.4_
-  - [ ] 12.2 Write property test for ActionStatusBadge
+  - [x] 12.2 Write property test for ActionStatusBadge
     - **Property 13: ActionStatusBadge shows most recent action** — for any non-empty list of `VehicleAction` records, badge displays `action` from the record with highest `createdAt`
     - **Validates: Requirement 5.4**
   - [x] 12.3 Implement `/src/components/aging-stock/AgingVehicleCard.tsx`
     - Render dealership name, make, model, year, trim, `daysInInventory`, price, and `ActionStatusBadge`; emit `onSelect(vehicleId)` on click
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.2, 5.3, 5.4, 6.1_
-  - [ ] 12.4 Write property test for AgingVehicleCard
+  - [x] 12.4 Write property test for AgingVehicleCard
     - **Property 12: AgingVehicleCard renders all required fields** — for any `VehicleWithComputed` where `isAging = true`, rendered output includes all 7 required fields
     - **Validates: Requirement 5.2**
   - [x] 12.5 Implement `/src/components/aging-stock/VehicleActionPanel.tsx`
     - Render inside `Modal`; action label field (max 500 chars) and notes textarea (max 2000 chars); pre-populate from `latestAction` prop via `useEffect`; client-side validation blocks submit if action label is empty/whitespace; display inline validation errors; render `ActionHistory` list ordered by `createdAt` descending; emit `onSubmit(body)` and `onClose()`
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 6.1, 6.2, 6.5, 6.6, 6.7, 7.1, 7.3, 7.4, 7.6_
-  - [ ] 12.6 Write property tests for VehicleActionPanel
+  - [x] 12.6 Write property tests for VehicleActionPanel
     - **Property 16: Action history displayed in descending createdAt order** — for any list of `VehicleActionWithAuthor` records, rendered history is in non-increasing `createdAt` order
     - **Property 17: Empty or whitespace action label is rejected** — for any string of only whitespace, submit does not dispatch POST and validation error is shown
     - **Property 18: Panel pre-populates from most recent action** — for any non-empty list of VehicleActions, panel opens with action label and notes from the record with highest `createdAt`
@@ -241,7 +241,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Use SWR `useAgingVehicles()` with `shouldRetryOnError: false`; sort by `daysInInventory` descending on first render; render `AgingVehicleCard` list; open `Modal` with `VehicleActionPanel` on vehicle select; handle submit via `createVehicleAction` then `mutate()`; show inline error on submit failure; display error message + retry control on SWR error; empty state when no aging vehicles
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 5.1–5.7, 6.1–6.7, 7.1–7.6_
-  - [ ] 13.3 Write property test for AgingStockView initial sort
+  - [x] 13.3 Write property test for AgingStockView initial sort
     - **Property 14: Aging vehicles initially sorted by daysInInventory descending** — for any array of aging vehicles with distinct `daysInInventory` values, initial render displays vehicles in non-increasing order
     - **Validates: Requirement 5.5**
   - [x] 13.4 Implement `/src/views/login/LoginView.tsx`
@@ -264,7 +264,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
   - Run `make lint` — fix any errors before marking complete
   - _Requirements: 10.1, 10.2_
 
-- [ ] 16. Checkpoint — Ensure all tests pass
+- [x] 16. Checkpoint — Ensure all tests pass
   - Run `npx vitest --run` and confirm every test across utility, service, API route, and component test files is green.
 
 - [x] 17. Wire ExportCsvButton into InventoryView
@@ -273,7 +273,7 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
 
-- [ ] 18. Final checkpoint — Full test run and lint
+- [x] 18. Final checkpoint — Full test run and lint
   - Run `npx vitest --run` — all tests must pass
   - Run `make lint` (`next lint` via `eslint.config.mjs`) — zero ESLint errors and zero `@typescript-eslint` warnings
   - Confirm no `// eslint-disable` suppressions are present without a documented justification comment

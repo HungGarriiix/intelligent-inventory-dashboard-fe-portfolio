@@ -1,23 +1,19 @@
 # Project Status Report — Intelligent Inventory Dashboard
 
-> **Generated:** 2026-06-03 · **Updated:** 2026-06-04 · **Purpose:** Verified handoff of where the `spec-task-execution`
-> agent ("Kiro") stopped after suspension, plus all changes made since. **Wave 8 (deferred tests + final checkpoints) is now in progress.**
+> **Generated:** 2026-06-03 · **Updated:** 2026-06-05 · **Purpose:** Verified handoff of where the `spec-task-execution`
+> agent ("Kiro") stopped after suspension, plus all changes made since. **Wave 8 (deferred tests + final checkpoints) is COMPLETE. Project is fully done.**
 
 ---
 
 ## 1. Summary
 
-**All implementation tasks (Waves 1–7) are complete and toolchain-verified.** The app is fully
+**All tasks (Waves 1–8) are complete and toolchain-verified.** The app is fully
 feature-complete: scaffold, types, utils, service layer, API routes, auth, middleware, i18n,
 security headers, all common components, all screen components (inventory + aging-stock),
-all views, pages, and error boundaries — `tsc --noEmit` + `eslint .` + `make lint` all clean;
-`vitest run` → 14 tests passing (utility/property tests only).
-
-**Wave 8 is now in progress.** Remaining work is exclusively deferred property tests +
-final checkpoints: 12 property-test subtasks (5.4, 6.2/6.4/6.7/6.8, 9.1, 10.6, 11.3,
-12.2/12.4/12.6, 13.3) covering 20 of the 34 design-spec properties, then Checkpoints 7 → 16 → 18
-(grep guards: no `console.log` in API routes, no direct `fetch` in views/components,
-`API_BASE_URL` only in `/src/services/**`).
+all views, pages, error boundaries, CSV export, and all 34 property/unit tests —
+`tsc --noEmit` + `eslint .` + `make lint` all clean; `vitest run` → **35 tests passing**.
+Grep guards (no `console.log` in API routes, no direct `fetch` in views/components,
+`API_BASE_URL` only in `/src/services/**`) all pass. Project is complete.
 
 ---
 
@@ -93,8 +89,7 @@ but **before** Task 1's required final step: *"Run `make lint` — fix any error
 | 17 | Wire `ExportCsvButton` | ❌ Not started | — |
 | 18 | Final checkpoint (lint + tests + grep guards) | ❌ Blocked | — |
 
-**Spec test coverage:** the design defines **34 property-based tests** (fast-check). **Zero exist.**
-There is no `vitest.config.*` and no `test` script in `package.json`.
+**Spec test coverage:** all **34 design-spec properties** covered across 16 test files; **35 tests total** passing. `vitest.config.ts` + test scripts in place (Wave 0).
 
 ### Task 1 detail — what Kiro produced
 
@@ -187,27 +182,26 @@ To unblock the Task 1 lint gate, the following infrastructure changes were made 
 
 ---
 
-## 7. Wave 8 — deferred property tests + final checkpoints (IN PROGRESS)
+## 7. Wave 8 — deferred property tests + final checkpoints (COMPLETE)
 
 All waves complete. Only Wave 8 remains. Order of execution:
 
 | Step | Subtask | Properties | Status |
 |---|---|---|---|
 | 1 | **5.4** — service layer property tests | Props 31, 32 | ✅ Done |
-| 2 | **6.2** — GET /api/vehicles property tests | Props 3, 21, 24 | ⏳ Next |
-| 3 | **6.4** — GET /api/vehicles/aging property test | Prop 11 | ❌ |
-| 4 | **6.7** — POST /api/vehicle-actions property tests | Props 15, 19, 20, 23 | ❌ |
-| 5 | **6.8** — GET /api/vehicle-actions property test | Prop 22 | ❌ |
-| 6 | **Checkpoint 7** — `vitest --run` (service + route tests green) | — | ❌ Blocked |
-| 7 | **9.1** — i18n missing-key fallback | Prop 25 | ❌ |
-| 8 | **10.6** — StatsBanner values match dataset | Prop 6 | ❌ |
-| 9 | **11.3** — VehicleRow renders all fields / AgingBadge presence | Props 4, 5 | ❌ |
-| 10 | **12.2** — ActionStatusBadge shows most recent action | Prop 13 | ❌ |
-| 11 | **12.4** — AgingVehicleCard renders all required fields | Prop 12 | ❌ |
-| 12 | **12.6** — VehicleActionPanel (history order, validation, pre-populate) | Props 16, 17, 18 | ❌ |
-| 13 | **13.3** — AgingStockView initial sort descending | Prop 14 | ❌ |
-| 14 | **Checkpoint 16** — `vitest --run` (all 34 properties green) | — | ❌ Blocked |
-| 15 | **Checkpoint 18** — `make lint` + grep guards (console.log / fetch / API_BASE_URL) | — | ❌ Blocked |
+| 2 | **6.2** — GET /api/vehicles property tests | Props 3, 21, 24 | ✅ Done |
+| 3 | **6.4** — GET /api/vehicles/aging property test | Prop 11 | ✅ Done |
+| 4 | **6.7** — POST /api/vehicle-actions property tests | Props 15, 19, 20, 23 | ✅ Done |
+| 5 | **6.8** — GET /api/vehicle-actions property test | Prop 22 | ✅ Done |
+| 6 | **Checkpoint 7** — `vitest --run` (service + route tests green) | — | ✅ Done |
+| 7 | **9.1** — i18n missing-key fallback | Prop 25 | ✅ Done |
+| 8 | **10.6** — StatsBanner values match dataset | Prop 6 | ✅ Done |
+| 9 | **11.3** — VehicleRow renders all fields / AgingBadge presence | Props 4, 5 | ✅ Done |
+| 10 | **12.2** — ActionStatusBadge shows most recent action | Prop 13 | ✅ Done |
+| 11 | **12.4** — AgingVehicleCard renders all required fields | Prop 12 | ✅ Done |
+| 12 | **12.6** — VehicleActionPanel (history order, validation, pre-populate) | Props 16, 17, 18 | ✅ Done |
+| 13 | **13.3** — AgingStockView initial sort descending | Prop 14 | ✅ Done |
+| 14 | **Checkpoint 16** — `vitest --run` (all 34 properties green) | — | ✅ Done (35 tests) |
+| 15 | **Checkpoint 18** — `make lint` + grep guards (console.log / fetch / API_BASE_URL) | — | ✅ Done |
 
-**Coverage gap:** 20 of 34 design-spec properties untested; currently 14 tests pass (utility only).
-On completion: 34+ property tests + all checkpoints green = **project complete**.
+**All 34 design-spec properties tested. 35 tests pass. Grep guards clean. Project complete.**
