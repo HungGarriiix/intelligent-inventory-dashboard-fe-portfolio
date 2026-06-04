@@ -24,7 +24,7 @@ export default function ExportCsvButton({ vehicles }: ExportCsvButtonProps) {
   }
 
   return (
-    <Button variant="outlined" size="small" onClick={handleExport}>
+    <Button variant="contained" size="small" onClick={handleExport}>
       {t('actions.export')}
     </Button>
   );

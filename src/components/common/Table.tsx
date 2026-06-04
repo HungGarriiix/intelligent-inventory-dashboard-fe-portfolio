@@ -42,6 +42,22 @@ export default function Table<T extends object>({
                 sortDirection={
                   sort?.column === col.key ? sort.direction : false
                 }
+                sx={(theme) =>
+                  theme.palette.mode === 'light'
+                    ? {
+                        fontWeight: 700,
+                        backgroundColor: '#6366f1',
+                        color: '#ffffff',
+                        '& .MuiTableSortLabel-root': { color: '#ffffff' },
+                        '& .MuiTableSortLabel-root.Mui-active': { color: '#ffffff' },
+                        '& .MuiTableSortLabel-root:hover': { color: '#e0e7ff' },
+                        '& .MuiTableSortLabel-icon': { color: '#ffffff !important' },
+                      }
+                    : {
+                        fontWeight: 700,
+                        backgroundColor: 'rgba(255,255,255,0.07)',
+                      }
+                }
               >
                 {col.sortable && onSort ? (
                   <TableSortLabel

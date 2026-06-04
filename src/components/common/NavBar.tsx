@@ -49,7 +49,17 @@ export default function NavBar() {
         </nav>
 
         <ThemeToggle />
-        <LogoutButton className="text-nav-muted hover:text-nav-text" />
+        <LogoutButton
+          variant="outlined"
+          sx={{
+            color: 'var(--color-nav-text)',
+            borderColor: 'var(--color-nav-muted)',
+            '&:hover': {
+              borderColor: 'var(--color-nav-text)',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+            },
+          }}
+        />
       </Toolbar>
     </AppBar>
   );

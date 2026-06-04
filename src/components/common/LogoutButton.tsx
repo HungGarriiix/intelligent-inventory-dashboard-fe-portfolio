@@ -1,13 +1,16 @@
 'use client';
 
+import { Button } from '@mui/material';
+import type { ButtonProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { logout } from '@/services/auth';
 
 interface LogoutButtonProps {
-  className?: string;
+  variant?: ButtonProps['variant'];
+  sx?: SxProps<Theme>;
 }
 
-export default function LogoutButton({ className = 'text-gray-600 hover:text-gray-900' }: LogoutButtonProps) {
+export default function LogoutButton({ variant = 'text', sx }: LogoutButtonProps) {
   const t = useTranslations('nav');
 
   async function handleLogout(): Promise<void> {
@@ -16,14 +19,16 @@ export default function LogoutButton({ className = 'text-gray-600 hover:text-gra
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant={variant}
+      size="small"
       onClick={() => {
         void handleLogout();
       }}
-      className={`text-sm transition-colors ${className}`}
+      sx={{ textTransform: 'none', ...sx }}
     >
       {t('logout')}
-    </button>
+    </Button>
   );
 }
