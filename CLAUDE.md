@@ -80,7 +80,7 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
   /components
     /common                 ← prop-driven, zero screen/entity knowledge
       Table, Pagination, FilterBar, Badge, Modal, SearchInput, StatsBanner, ErrorPage
-      LogoutButton, ThemeRegistry, ThemeToggle, IntlProvider
+      NavBar, LogoutButton, ThemeRegistry, ThemeToggle, IntlProvider
     /inventory              AgingBadge, VehicleRow, InventoryFilters, ExportCsvButton
     /aging-stock            ActionStatusBadge, AgingVehicleCard, VehicleActionPanel
   /services                 ← vehicles.ts, dealerships.ts, vehicleActions.ts, auth.ts, apiClient.ts (ONLY place reading API_BASE_URL)
@@ -88,10 +88,11 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
   /hooks                    ← useI18n.ts (wraps next-intl useTranslations; use in all client components for i18n)
   /schemas                  ← zod schemas split by entity: auth.ts, vehicleAction.ts (NOT in original spec — added for validation)
   /config/routes.ts         ← nav + route config (add a screen = add one entry here)
+  /i18n/request.ts          ← next-intl server config (locale `en`, getMessageFallback, swallow load errors)
   /types                    ← entities.ts, api.ts, ui.ts
   /data/*.json              ← users, dealerships, vehicles, vehicle-actions (source of truth)
 /messages/en.json           ← all UI strings
-middleware.ts               ← guards /manager/*; redirects authed users off /login
+src/middleware.ts           ← guards /manager/*; redirects authed users off /login (⚠️ in src/ not root — Next.js 15 ignores root-level middleware when src/ exists)
 next.config.ts              ← security headers (CSP, HSTS, X-Frame-Options, …)
 ```
 
@@ -153,26 +154,29 @@ This is how we work in this repo:
 
 ## 8. Current status (snapshot — `STATUS.md` is authoritative)
 
-- **Stage:** Wave 8 — deferred property tests + final checkpoints.
-- **All implementation complete (Waves 1–7):** scaffold, types, utils, service layer, API routes, auth,
-  middleware, i18n, security headers, all components (common + inventory + aging-stock), all views,
-  pages, error boundaries, CSV export. `tsc --noEmit` + `eslint .` + `make lint` all clean.
-- **Tests:** 14 utility/property tests passing. 20 of 34 design-spec properties still untested (Wave 8).
+- **Stage:** COMPLETE — all waves (1–8) done.
+- **All tasks complete:** scaffold, types, utils, service layer, API routes, auth, middleware, i18n,
+  security headers, all components (common + inventory + aging-stock), all views, pages, error
+  boundaries, CSV export, all 34 design-spec properties tested. `tsc --noEmit` + `eslint .` +
+  `make lint` all clean. `vitest run` → **35 tests passing**. Grep guards clean.
 - **Runtime bugs fixed (2026-06-03/04):**
-  - `LogoutButton`: direct `fetch` in component (violates service-layer rule) + `router.push/refresh` race. Fixed: use `logout()` service + `window.location.href`.
-  - `LoginView`: `router.push + router.refresh()` caused SWR remount → stuck `isLoading`. Fixed: `window.location.href`.
-  - `middleware.ts` location: was at project root — ignored by Next.js 15 when `src/` exists. Moved to `src/middleware.ts`. Verified via `.next/server/middleware-manifest.json`.
-  - CSP `EvalError`: Next.js dev HMR (`react-refresh-utils`) needs `'unsafe-eval'`. Added dev-only to `script-src` in `next.config.ts`.
-  - `AgingStockView` action badges always showed "No Action Recorded" on page load (Req 5.4 broken). Root cause: `latestActionMap` built from per-vehicle SWR that only fired after a card was selected. Fixed: added `fetchAllVehicleActions()` service export + `vehicleActionKeys.all` SWR on page load; `latestActionMap` now built from all-actions response at mount.
-- **UI + theme additions (2026-06-04):**
-  - **Indigo theme:** MUI primary `#6366f1`, dark nav header `#1e1b4b`. Nav tokens centralized as CSS vars in `globals.css` + Tailwind `extend.colors` in `tailwind.config.ts`.
-  - **Dark mode:** `tailwind.config.ts` `darkMode: 'class'`; `.dark {}` block in `globals.css`; `ThemeRegistry` rewritten with `ColorModeContext` + `useColorMode()` hook + dual MUI palettes + localStorage persistence + `useEffect` `.dark` class sync.
-  - **`ThemeToggle.tsx`** (new `common/` component): moon/sun inline-SVG toggle; placed left of `LogoutButton` in manager layout.
-  - **`LogoutButton`** now accepts `className` prop (default `text-gray-600`); nav injects `text-nav-muted hover:text-nav-text`.
-  - **`src/schemas/`** (new folder, not in original spec): `auth.ts` + `vehicleAction.ts` zod schemas. `LoginView` + `vehicle-actions` route + `auth/login` route all parse via these schemas; `VehicleActionPanel` `formSchema` hoisted to module scope.
+  - `LogoutButton`: direct `fetch` + `router.push/refresh` race. Fixed: `logout()` service + `window.location.href`.
+  - `LoginView`: `router.push + router.refresh()` → SWR remount. Fixed: `window.location.href`.
+  - `middleware.ts` at project root — ignored by Next.js 15 with `src/`. Moved to `src/middleware.ts`.
+  - CSP `EvalError`: added `'unsafe-eval'` dev-only to `script-src`.
+  - `AgingStockView` latestActionMap empty on load. Fixed: `fetchAllVehicleActions()` SWR at mount.
+  - `InventoryView` sort on current page only. Fixed: single `pageSize=all` SWR + client-side slice.
+- **UI + theme additions (2026-06-04/05):**
+  - **Indigo theme + dark mode:** MUI primary `#6366f1`, dark nav `#1e1b4b`. `ThemeRegistry` owns body bg/color via `useEffect` (bypasses emotion/CssBaseline conflict). CSS vars + Tailwind `extend.colors`.
+  - **`NavBar.tsx`** (new `common/`): MUI AppBar + Toolbar; nav links as MUI Button; manager layout is thin server shell.
+  - **`ThemeToggle.tsx`** (new `common/`): moon/sun inline-SVG toggle.
+  - **`LogoutButton`**: MUI `Button` with `variant` + `sx` props; nav uses `variant="outlined"`.
+  - **Table header:** `#6366f1` bg + white text (light mode); `rgba(255,255,255,0.07)` subtle (dark).
+  - **`ExportCsvButton`**: `variant="contained"`.
+  - **`src/schemas/`** (new, not in spec): `auth.ts` + `vehicleAction.ts` zod schemas.
 - **Constant + i18n centralization (2026-06-04):**
-  - **`src/lib/constants.ts`** (new, not in spec): `AGING_THRESHOLD_DAYS`, `DEFAULT_PAGE_SIZE`, `MAX_ACTION_LENGTH`, `MAX_NOTES_LENGTH`, `DATE_TIME_FORMAT`, `CSV_DATE_FORMAT`, `VALIDATION_MESSAGES`. All schemas, API routes, and components import from here — no magic numbers elsewhere.
-  - **`src/hooks/useI18n.ts`** (new, not in spec): thin wrapper over `next-intl`'s `useTranslations()`. All client components use `const t = useI18n()` — zero hardcoded display strings in components/views. Server components (`not-found.tsx`) use `getTranslations()` from `next-intl/server` directly.
-  - **`messages/en.json`** extended: added `common.loading`, `actions.tryAgain`, `login.signingIn`, `panel.notesOptionalLabel`, `vehicle.daysInInventory` (ICU `{days}d in inventory`), `errors.loadVehiclesFailed`, `errors.loadAgingVehiclesFailed`, `table.aging`, `accessibility.switchToLight/switchToDark`.
-- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/` + `src/hooks/` + `src/lib/constants.ts` not in original spec/design (added for validation + i18n + centralization); `ThemeToggle` + dark mode not in spec (UI enhancement).
-- **Next up:** Task 6.2 — property tests for `GET /api/vehicles` (Props 3, 21, 24).
+  - **`src/lib/constants.ts`** (new, not in spec): all magic numbers + validation messages.
+  - **`src/hooks/useI18n.ts`** (new, not in spec): `useTranslations()` wrapper. All client components use `const t = useI18n()`.
+  - **`messages/en.json`** extended + dead keys removed (`errors.actionRequired`, `panel.notes`).
+- **Known deviations:** Next 15 vs spec "14+"; `middleware.ts` in `src/` not root; `next lint` deprecated; `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/`, `src/hooks/`, `src/lib/constants.ts`, `NavBar.tsx`, `ThemeToggle.tsx`, dark mode not in original spec; `actionedCount = 0` hardcoded (additional SWR deferred); Prop 25 tests `getMessageFallback` directly (next-intl formatter crashes on arbitrary strings in jsdom).
+- **Next up:** Nothing. Project complete.

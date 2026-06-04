@@ -9,7 +9,8 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
 ## Tasks
 
 - [x] 1. Scaffold project structure and static data files
-  - Initialise the Next.js 14 project with TypeScript, Tailwind CSS, MUI, SWR, dayjs, next-intl, iron-session, and fast-check as dependencies
+  - ⚠️ **Deviation:** Upgraded to Next.js **15.5.19** (spec originally said 14) to fix ESLint 9 flat-config toolchain incompatibility with Next.js 14.
+  - Initialise the Next.js project (15.5.19) with TypeScript, Tailwind CSS, MUI, SWR, dayjs, next-intl, iron-session, and fast-check as dependencies
   - Install ESLint 9 with TypeScript support: `eslint@^9`, `typescript-eslint@^8` (provides `@typescript-eslint/parser` and `@typescript-eslint/eslint-plugin` via the unified package), and `eslint-config-next` (pinned to the Next.js version in use)
   - Create `eslint.config.mjs` (ESLint 9 flat config) that enables the `typescript-eslint` recommended rules, Next.js core web vitals rules, and sets `parser` to `@typescript-eslint/parser` with `project: true` for type-aware linting
   - Create the directory skeleton: `/src/app`, `/src/views`, `/src/components/common`, `/src/components/inventory`, `/src/components/aging-stock`, `/src/services`, `/src/lib`, `/src/config`, `/src/types`, `/src/data`, `/messages`
@@ -151,9 +152,11 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
     - Run `make lint` — fix any errors before marking complete
     - _Requirements: 13.2, 13.4_
 
-- [ ] 9. Implement the i18n configuration and message file
-  - Configure `next-intl` in `next.config.ts` (or dedicated `i18n.ts` config) with default locale `en`; set `onMissingTranslation` to return the key itself
-  - Create `/messages/en.json` with all translation keys: `nav`, `filters`, `stats`, `table`, `errors`, `actions`, `panel`
+- [x] 9. Implement the i18n configuration and message file
+  - Configured `next-intl` via `/src/i18n/request.ts` (next-intl App Router server config) — returns locale `en`, messages, `getMessageFallback: ({ key }) => key`, swallows load errors.
+  - Created `/messages/en.json` (project root) with all translation keys: `nav`, `filters`, `stats`, `table`, `errors`, `actions`, `panel`, `vehicle`.
+  - `IntlProvider.tsx` added to `/src/components/common/` as client-side next-intl provider wrapper.
+  - `useI18n.ts` hook added to `/src/hooks/` as `useTranslations()` wrapper — all client components use `const t = useI18n()`.
   - Run `make lint` — fix any errors before marking complete
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
   - [x] 9.1 Write property test for missing translation key fallback
@@ -292,6 +295,29 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
 - Property tests validate universal correctness properties; unit tests cover concrete scenarios (empty states, error states, specific interactions)
 - The design document's Properties 1–34 are fully covered across tasks 3.2, 3.4, 3.6, 3.8, 5.4, 6.2, 6.4, 6.7, 6.8, 9.1, 10.6, 11.3, 12.2, 12.4, 12.6, 13.3
 - `API_BASE_URL` is read exclusively in `/src/services/**` — swapping the backend requires only changing this environment variable
+
+## Architectural Additions (not in original spec — implemented during build)
+
+The following files/systems were added beyond the original spec. All additions are documented in `STATUS.md` and `CLAUDE.md §8`.
+
+| File / Directory | Reason |
+|---|---|
+| `src/middleware.ts` | ⚠️ Must be in `src/` on Next.js 15 — root-level ignored when `src/` exists |
+| `src/lib/dataStore.ts` | Server-side JSON file abstraction (readUsers, readVehicles, appendVehicleAction) |
+| `src/lib/session.ts` | iron-session config (sessionOptions, SessionPayload, SESSION_TTL_MS) |
+| `src/lib/constants.ts` | All magic numbers + validation messages centralized |
+| `src/services/auth.ts` | `login()` + `logout()` service functions |
+| `src/services/apiClient.ts` | Shared `apiFetch<T>()` helper; only place that reads `API_BASE_URL` |
+| `src/hooks/useI18n.ts` | `useTranslations()` wrapper; all client components import this |
+| `src/schemas/auth.ts` | Zod `loginSchema` for POST /api/auth/login validation |
+| `src/schemas/vehicleAction.ts` | Zod `createVehicleActionSchema` for POST /api/vehicle-actions validation |
+| `src/i18n/request.ts` | next-intl server config: locale `en`, `getMessageFallback`, error swallowing |
+| `src/components/common/NavBar.tsx` | MUI AppBar nav with links, ThemeToggle, LogoutButton |
+| `src/components/common/ThemeRegistry.tsx` | MUI ThemeProvider + dark-mode body bg/color via useEffect |
+| `src/components/common/ThemeToggle.tsx` | Light/dark toggle (localStorage persisted) |
+| `src/components/common/IntlProvider.tsx` | next-intl client provider wrapper |
+| Dark mode system | MUI primary `#6366f1`, dark nav `#1e1b4b`; CSS vars + Tailwind `extend.colors` |
+| Next.js 15.5.19 | Upgraded from 14 to fix ESLint 9 + typescript-eslint 8 compatibility |
 
 ## Task Dependency Graph
 

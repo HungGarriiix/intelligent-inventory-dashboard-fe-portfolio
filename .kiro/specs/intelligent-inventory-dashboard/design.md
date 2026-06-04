@@ -32,7 +32,8 @@ All data is served from static JSON files through Next.js API routes. A service 
 │               Next.js API Routes                 │
 │  /api/vehicles  /api/vehicles/aging              │
 │  /api/dealerships  /api/vehicle-actions          │
-│              middleware.ts (auth guard)          │
+│  /api/auth/login  /api/auth/logout               │
+│          src/middleware.ts (auth guard)          │
 └──────────────────────┬──────────────────────────┘
                        │ fs.readFileSync / JSON.parse
 ┌──────────────────────▼──────────────────────────┐
@@ -81,25 +82,29 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
 ```
 /src
   /app
-    error.tsx                        ← Global error boundary (500-level, unhandled)
-    not-found.tsx                    ← Global 404 page
-    /login/page.tsx                  ← Server component, renders LoginView
+    layout.tsx                           ← Root layout: ThemeRegistry + IntlProvider
+    page.tsx                             ← Root redirect → /manager/inventory
+    error.tsx                            ← Global error boundary (500-level, unhandled)
+    not-found.tsx                        ← Global 404 page
+    /login/page.tsx                      ← Server component, renders LoginView
     /manager
-      layout.tsx                     ← Auth guard + shared nav (server)
-      error.tsx                      ← Manager-scoped error boundary (renders within nav shell)
-      /inventory/page.tsx            ← Renders InventoryView
-      /aging-stock/page.tsx          ← Renders AgingStockView
+      layout.tsx                         ← Shared nav shell (NavBar); auth enforced by middleware
+      error.tsx                          ← Manager-scoped error boundary (renders within nav shell)
+      /inventory/page.tsx                ← Renders InventoryView
+      /aging-stock/page.tsx              ← Renders AgingStockView (passes userId from session)
     /api
-      /vehicles/route.ts             ← GET /api/vehicles
-      /vehicles/aging/route.ts       ← GET /api/vehicles/aging
-      /dealerships/route.ts          ← GET /api/dealerships
-      /vehicle-actions/route.ts      ← GET + POST /api/vehicle-actions
+      /vehicles/route.ts                 ← GET /api/vehicles
+      /vehicles/aging/route.ts           ← GET /api/vehicles/aging
+      /dealerships/route.ts              ← GET /api/dealerships
+      /vehicle-actions/route.ts          ← GET + POST /api/vehicle-actions
+      /auth/login/route.ts               ← POST /api/auth/login
+      /auth/logout/route.ts              ← POST /api/auth/logout
 
   /views
-    /login/LoginView.tsx             ← Client component
+    /login/LoginView.tsx                 ← Client component
     /manager
-      /inventory/InventoryView.tsx   ← Client component
-      /aging-stock/AgingStockView.tsx← Client component
+      /inventory/InventoryView.tsx       ← Client component
+      /aging-stock/AgingStockView.tsx    ← Client component
 
   /components
     /common
@@ -110,26 +115,56 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
       Modal.tsx
       SearchInput.tsx
       StatsBanner.tsx
-      ErrorPage.tsx                  ← Reusable error UI (used by error.tsx files)
+      ErrorPage.tsx                      ← Reusable error UI (used by error.tsx files)
+      NavBar.tsx                         ← MUI AppBar; nav links + ThemeToggle + LogoutButton
+      LogoutButton.tsx                   ← Calls logout() service; redirects via window.location
+      ThemeRegistry.tsx                  ← MUI ThemeProvider + dark-mode body styles (useEffect)
+      ThemeToggle.tsx                    ← Light/dark toggle; persisted in localStorage
+      IntlProvider.tsx                   ← next-intl client provider
     /inventory
       InventoryFilters.tsx
       VehicleRow.tsx
       AgingBadge.tsx
+      ExportCsvButton.tsx                ← Always visible; client-side CSV generation, no extra API call
     /aging-stock
       AgingVehicleCard.tsx
       VehicleActionPanel.tsx
       ActionStatusBadge.tsx
 
   /services
+    apiClient.ts                         ← Shared apiFetch<T>(); ONLY place reading API_BASE_URL
     vehicles.ts
     dealerships.ts
     vehicleActions.ts
+    auth.ts                              ← login() + logout() service functions
+
+  /hooks
+    useI18n.ts                           ← useTranslations() wrapper; all client components use this
+
+  /schemas
+    auth.ts                              ← Zod loginSchema
+    vehicleAction.ts                     ← Zod createVehicleActionSchema (with char-limit rules)
 
   /config
     routes.ts
 
   /lib
-    logger.ts
+    agingUtils.ts                        ← computeAgingFields(); pure, UTC dayjs, server-side only
+    logger.ts                            ← Structured logger; LogTransport interface; swappable
+    csvExport.ts                         ← generateCsv() + downloadCsv(); client-side
+    filterUtils.ts                       ← applyFilters(); pure AND-conjunction
+    sortUtils.ts                         ← applySort<T>(); generic, pure
+    dataStore.ts                         ← readVehicles/readUsers/etc. + appendVehicleAction (JSON I/O)
+    session.ts                           ← iron-session sessionOptions + SessionPayload + TTL
+    constants.ts                         ← AGING_THRESHOLD_DAYS, MAX_ACTION_LENGTH, DEFAULT_PAGE_SIZE, …
+
+  /i18n
+    request.ts                           ← next-intl server config (locale en, getMessageFallback, onError)
+
+  /types
+    entities.ts
+    api.ts
+    ui.ts
 
   /data
     users.json
@@ -137,8 +172,10 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
     vehicles.json
     vehicle-actions.json
 
-  /messages
-    en.json
+src/middleware.ts                        ← ⚠️ In src/ (not project root): Next.js 15 ignores root-level
+                                            middleware when src/ exists. Protects /manager/*, redirects /login.
+
+/messages/en.json                        ← All UI strings (project root, not inside /src)
 ```
 
 
@@ -560,6 +597,8 @@ export const dealershipKeys = {
 ```typescript
 // /src/services/vehicleActions.ts
 
+export async function fetchAllVehicleActions(): Promise<GetVehicleActionsResponse> { ... }
+
 export async function fetchVehicleActions(
   vehicleId: string
 ): Promise<GetVehicleActionsResponse> { ... }
@@ -569,8 +608,17 @@ export async function createVehicleAction(
 ): Promise<CreateVehicleActionResponse> { ... }
 
 export const vehicleActionKeys = {
+  all: ['vehicle-actions'] as const,
   byVehicle: (vehicleId: string) => ['vehicle-actions', vehicleId] as const,
 };
+```
+
+```typescript
+// /src/services/auth.ts
+
+export async function login(email: string, password: string): Promise<{ userId: string; role: UserRole; email: string }> { ... }
+
+export async function logout(): Promise<void> { ... }
 ```
 
 ### Error handling pattern in services
@@ -794,11 +842,14 @@ export async function GET(req: Request) {
 ## Auth / Session Strategy
 
 ```
-/src/data/users.json        ← hashed passwords (bcryptjs)
-middleware.ts               ← reads session cookie, redirects on invalid/absent
-/app/login/page.tsx         ← renders LoginView
-/app/api/auth/login/route.ts← POST: validate credentials, set session cookie
-/app/api/auth/logout/route.ts← POST: clear session cookie
+/src/data/users.json              ← hashed passwords (bcryptjs)
+src/middleware.ts                 ← reads session cookie, redirects on invalid/absent
+                                     ⚠️ Must be in src/ on Next.js 15 (root-level ignored)
+/src/lib/session.ts               ← iron-session sessionOptions + SessionPayload type
+/src/services/auth.ts             ← login() + logout() service functions (go through apiFetch)
+/app/login/page.tsx               ← renders LoginView
+/app/api/auth/login/route.ts      ← POST: validate with loginSchema (zod), bcrypt compare, set cookie
+/app/api/auth/logout/route.ts     ← POST: session.destroy(), return { ok: true }
 ```
 
 Session is stored as a signed, encrypted HTTP-only cookie using `iron-session` (or equivalent). Cookie attributes:
@@ -825,7 +876,7 @@ interface SessionPayload {
 ### Middleware logic (pseudocode)
 
 ```typescript
-// middleware.ts
+// src/middleware.ts  (⚠️ must be in src/ on Next.js 15)
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
