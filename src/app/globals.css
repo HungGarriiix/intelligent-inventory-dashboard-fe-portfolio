@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-nav-bg: #1e1b4b;
+  --color-nav-text: #e0e7ff;
+  --color-nav-border: #312e81;
+  --color-nav-muted: #a5b4fc;
+}
+
+.dark {
+  --color-nav-bg: #0c0a1a;
+  --color-nav-text: #e0e7ff;
+  --color-nav-border: #1e1b4b;
+  --color-nav-muted: #818cf8;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}

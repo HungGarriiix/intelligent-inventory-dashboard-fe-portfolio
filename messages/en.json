@@ -1,0 +1,102 @@
+{
+  "nav": {
+    "appTitle": "Inventory Dashboard",
+    "inventory": "Inventory",
+    "agingStock": "Aging Stock",
+    "login": "Login",
+    "logout": "Log out"
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "filters": {
+    "dealership": "Dealership",
+    "make": "Make",
+    "model": "Model",
+    "age": "Age",
+    "all": "All",
+    "aging": "Aging",
+    "nonAging": "Non-Aging"
+  },
+  "stats": {
+    "totalVehicles": "Total Vehicles",
+    "agingVehicles": "Aging",
+    "actionedVehicles": "Actioned"
+  },
+  "table": {
+    "dealership": "Dealership",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "trim": "Trim",
+    "color": "Color",
+    "mileage": "Mileage",
+    "price": "Price",
+    "condition": "Condition",
+    "status": "Status",
+    "daysInInventory": "Days in Inventory",
+    "aging": "Aging"
+  },
+  "vehicle": {
+    "daysInInventory": "{days}d in inventory"
+  },
+  "errors": {
+    "fetchFailed": "Failed to load data. Please try again.",
+    "loadVehiclesFailed": "Failed to load vehicles. Please try again.",
+    "loadAgingVehiclesFailed": "Failed to load aging vehicles. Please try again.",
+    "submitFailed": "Failed to save. Please try again.",
+    "noVehicles": "No vehicles found.",
+    "noAgingVehicles": "No aging vehicles in inventory.",
+    "serverError": "Something went wrong",
+    "serverErrorMessage": "An unexpected error occurred. Please try again or return to the inventory.",
+    "notFound": "Page not found",
+    "notFoundMessage": "The page you’re looking for doesn’t exist."
+  },
+  "actions": {
+    "export": "Export CSV",
+    "retry": "Retry",
+    "tryAgain": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "goToInventory": "Go to Inventory",
+    "addVehicle": "Add Vehicle"
+  },
+  "createVehicle": {
+    "title": "Add Vehicle",
+    "dealership": "Dealership",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "vin": "VIN",
+    "trim": "Trim",
+    "color": "Color",
+    "mileage": "Mileage",
+    "price": "Price ($)",
+    "condition": "Condition",
+    "status": "Status",
+    "dateAdded": "Date Added to Inventory",
+    "submit": "Add Vehicle",
+    "submitting": "Adding…",
+    "successMessage": "Vehicle added successfully."
+  },
+  "panel": {
+    "noActionRecorded": "No Action Recorded",
+    "actionLabel": "Action",
+    "notesOptionalLabel": "Notes (optional)",
+    "history": "History",
+    "logAction": "Log Action",
+    "loggedBy": "by"
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "signingIn": "Signing in…",
+    "error": "Invalid email or password."
+  },
+  "accessibility": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  }
+}
