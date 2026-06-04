@@ -227,3 +227,14 @@ All waves complete. Only Wave 8 remains. Order of execution:
 **Zod v4 pitfall (fixed):** `ZodError.issues` (not `.errors`); enum params accept plain string; number params use `error:` (not `invalid_type_error`).
 
 **Verified:** `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` → 35 tests ✅ · `make lint` ✅
+
+---
+
+## 9. Documentation additions (2026-06-05)
+
+| File | Contents |
+|---|---|
+| `README.md` | Build/run/test instructions, demo credentials (`Password123!`), project structure, tech stack table, AI Collaboration Narrative section |
+| `SYSTEM_DESIGN.md` | Architecture diagram (ASCII), component roles, 4 data flow sequences, technology justifications, observability strategy, GenAI design phase section (Tool Pipeline, GenAI Contributions, **GenAI Harnessing Strategy** — EARS format rationale, spec file as AI input engineering, context file architecture, confirmation loop pattern), Constraints Applied to GenAI, Lessons |
+
+No code changes. Toolchain state unchanged: `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` → 35 tests ✅

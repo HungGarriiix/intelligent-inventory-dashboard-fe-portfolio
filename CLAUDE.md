@@ -188,4 +188,5 @@ This is how we work in this repo:
   - `VIN_LENGTH`, `YEAR_MIN`, `YEAR_MAX`, 11 `VALIDATION_MESSAGES` added to `constants.ts`.
   - `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` ✅ (35 tests, no new tests added for this feature).
 - **Known deviations:** Next 15 vs spec "14+"; `middleware.ts` in `src/` not root; `next lint` deprecated; `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/`, `src/hooks/`, `src/lib/constants.ts`, `NavBar.tsx`, `ThemeToggle.tsx`, dark mode not in original spec; `actionedCount = 0` hardcoded (additional SWR deferred); Prop 25 tests `getMessageFallback` directly (next-intl formatter crashes on arbitrary strings in jsdom); Req 15 (vehicle creation) added post-completion — not in original spec/tasks.
+- **Documentation added (2026-06-05):** `README.md` (setup, demo credentials, AI narrative) + `SYSTEM_DESIGN.md` (architecture diagram, component roles, data flows, tech justifications, observability, GenAI harnessing strategy).
 - **Next up:** Nothing. Project complete.
