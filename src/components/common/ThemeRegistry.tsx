@@ -52,6 +52,8 @@ export default function ThemeRegistry({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.body.style.backgroundColor = palettes[mode].background.default;
+    document.body.style.color = mode === 'dark' ? '#f1f5f9' : '#171717';
   }, [mode]);
 
   const toggle = useCallback(() => {
