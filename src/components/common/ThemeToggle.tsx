@@ -1,6 +1,7 @@
 'use client';
 
 import { useColorMode } from './ThemeRegistry';
+import { useI18n } from '@/hooks/useI18n';
 
 function SunIcon() {
   return (
@@ -48,13 +49,14 @@ interface ThemeToggleProps {
 }
 
 export default function ThemeToggle({ className = 'text-nav-muted hover:text-nav-text' }: ThemeToggleProps) {
+  const t = useI18n();
   const { mode, toggle } = useColorMode();
   return (
     <button
       type="button"
       onClick={toggle}
       className={`text-sm transition-colors p-1 rounded ${className}`}
-      aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={mode === 'dark' ? t('accessibility.switchToLight') : t('accessibility.switchToDark')}
     >
       {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
     </button>

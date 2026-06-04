@@ -11,34 +11,35 @@ import ExportCsvButton from '@/components/inventory/ExportCsvButton';
 import { AgingCell, DaysCell, MileageCell, PriceCell } from '@/components/inventory/VehicleRow';
 import { applySort } from '@/lib/sortUtils';
 import { resetPageOnFilterChange } from '@/lib/filterUtils';
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants';
 import { fetchDealerships, dealershipKeys } from '@/services/dealerships';
 import { fetchVehicles, vehicleKeys } from '@/services/vehicles';
+import { useI18n } from '@/hooks/useI18n';
 import type { ColumnDefinition, FilterState, SortState } from '@/types/ui';
 import type { VehicleWithComputed } from '@/types/entities';
 
-const PAGE_SIZE = 25;
-
-const COLUMNS: ColumnDefinition<VehicleWithComputed>[] = [
-  { key: 'dealershipName', label: 'Dealership' },
-  { key: 'make',           label: 'Make',             sortable: true },
-  { key: 'model',          label: 'Model',            sortable: true },
-  { key: 'year',           label: 'Year',             sortable: true },
-  { key: 'trim',           label: 'Trim' },
-  { key: 'color',          label: 'Color' },
-  { key: 'mileage',        label: 'Mileage',          sortable: true, renderCell: (v) => <MileageCell vehicle={v} /> },
-  { key: 'price',          label: 'Price',            sortable: true, renderCell: (v) => <PriceCell vehicle={v} /> },
-  { key: 'condition',      label: 'Condition' },
-  { key: 'status',         label: 'Status' },
-  { key: 'daysInInventory',label: 'Days in Inventory',sortable: true, renderCell: (v) => <DaysCell vehicle={v} /> },
-  { key: 'isAging',        label: 'Aging',                           renderCell: (v) => <AgingCell vehicle={v} /> },
-];
-
 export default function InventoryView() {
+  const t = useI18n();
   const [filters, setFilters] = useState<FilterState>({
     dealership: '', make: '', model: '', age: '',
   });
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortState>({ column: 'make', direction: 'asc' });
+
+  const columns: ColumnDefinition<VehicleWithComputed>[] = [
+    { key: 'dealershipName', label: t('table.dealership') },
+    { key: 'make',           label: t('table.make'),            sortable: true },
+    { key: 'model',          label: t('table.model'),           sortable: true },
+    { key: 'year',           label: t('table.year'),            sortable: true },
+    { key: 'trim',           label: t('table.trim') },
+    { key: 'color',          label: t('table.color') },
+    { key: 'mileage',        label: t('table.mileage'),         sortable: true, renderCell: (v) => <MileageCell vehicle={v} /> },
+    { key: 'price',          label: t('table.price'),           sortable: true, renderCell: (v) => <PriceCell vehicle={v} /> },
+    { key: 'condition',      label: t('table.condition') },
+    { key: 'status',         label: t('table.status') },
+    { key: 'daysInInventory',label: t('table.daysInInventory'), sortable: true, renderCell: (v) => <DaysCell vehicle={v} /> },
+    { key: 'isAging',        label: t('table.aging'),                            renderCell: (v) => <AgingCell vehicle={v} /> },
+  ];
 
   function handleFilterChange(next: FilterState): void {
     setFilters(next);
@@ -52,33 +53,23 @@ export default function InventoryView() {
     }));
   }
 
-  // Paginated data for the table
-  const { data, error, isLoading } = useSWR(
-    vehicleKeys.list({ ...filters, page }),
-    () => fetchVehicles({ ...filters, page }),
-  );
-
-  // Full filtered dataset for CSV export + stats
-  const { data: allData } = useSWR(
+  const { data: allData, error, isLoading } = useSWR(
     vehicleKeys.list({ ...filters, pageSize: 'all' }),
     () => fetchVehicles({ ...filters, pageSize: 'all' }),
   );
 
-  // Dealerships for the filter dropdown
   const { data: dealershipsData } = useSWR(
     dealershipKeys.all(),
     fetchDealerships,
   );
 
-  const vehicles = data?.data ?? [];
-  const sortedVehicles = applySort(vehicles, sort);
-  const total = data?.total ?? 0;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-
   const allVehicles = allData?.data ?? [];
+  const sortedAll = applySort(allVehicles, sort);
+  const total = allData?.total ?? 0;
+  const totalPages = Math.ceil(total / DEFAULT_PAGE_SIZE);
+  const sortedVehicles = sortedAll.slice((page - 1) * DEFAULT_PAGE_SIZE, page * DEFAULT_PAGE_SIZE);
+
   const agingCount = allVehicles.filter((v) => v.isAging).length;
-  // actionedCount computed server-side would need a separate fetch; show 0 until
-  // a later task wires in the vehicle-actions data here.
   const actionedCount = 0;
 
   const dealerships = dealershipsData?.data ?? [];
@@ -86,9 +77,9 @@ export default function InventoryView() {
   const models = [...new Set(allVehicles.map((v) => v.model))].sort();
 
   const metrics = [
-    { key: 'total',    label: 'Total Vehicles',  value: allData?.total ?? 0 },
-    { key: 'aging',    label: 'Aging',            value: agingCount, highlight: true },
-    { key: 'actioned', label: 'Actioned',         value: actionedCount },
+    { key: 'total',    label: t('stats.totalVehicles'),    value: allData?.total ?? 0 },
+    { key: 'aging',    label: t('stats.agingVehicles'),    value: agingCount, highlight: true },
+    { key: 'actioned', label: t('stats.actionedVehicles'), value: actionedCount },
   ];
 
   return (
@@ -105,20 +96,20 @@ export default function InventoryView() {
         <ExportCsvButton vehicles={allVehicles} />
       </div>
 
-      {isLoading && <Typography color="text.secondary">Loading…</Typography>}
+      {isLoading && (
+        <Typography color="text.secondary">{t('common.loading')}</Typography>
+      )}
       {error && (
-        <Typography color="error">
-          Failed to load vehicles. Please try again.
-        </Typography>
+        <Typography color="error">{t('errors.loadVehiclesFailed')}</Typography>
       )}
 
       {!isLoading && !error && sortedVehicles.length === 0 && (
-        <Typography color="text.secondary">No vehicles found.</Typography>
+        <Typography color="text.secondary">{t('errors.noVehicles')}</Typography>
       )}
 
       {!isLoading && sortedVehicles.length > 0 && (
         <Table<VehicleWithComputed>
-          columns={COLUMNS}
+          columns={columns}
           rows={sortedVehicles}
           sort={sort}
           onSort={handleSort}

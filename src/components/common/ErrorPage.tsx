@@ -5,6 +5,7 @@
 import { Button, Typography } from '@mui/material';
 import Link from 'next/link';
 import { routes } from '@/config/routes';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ErrorPageProps {
   title: string;
@@ -21,6 +22,7 @@ export default function ErrorPage({
   showHome,
   onRetry,
 }: ErrorPageProps) {
+  const t = useI18n();
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
       <Typography variant="h4" fontWeight="bold">
@@ -32,12 +34,12 @@ export default function ErrorPage({
       <div className="flex gap-3 mt-2">
         {showRetry && onRetry && (
           <Button variant="contained" onClick={onRetry}>
-            Try again
+            {t('actions.tryAgain')}
           </Button>
         )}
         {showHome && (
           <Button variant="outlined" component={Link} href={routes.inventory.path}>
-            Go to Inventory
+            {t('actions.goToInventory')}
           </Button>
         )}
       </div>

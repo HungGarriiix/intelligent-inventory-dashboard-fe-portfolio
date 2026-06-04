@@ -15,6 +15,7 @@ import {
   vehicleActionKeys,
 } from '@/services/vehicleActions';
 import { ApiError } from '@/types/api';
+import { useI18n } from '@/hooks/useI18n';
 import type { VehicleActionWithAuthor } from '@/types/entities';
 
 interface AgingStockViewProps {
@@ -22,24 +23,23 @@ interface AgingStockViewProps {
 }
 
 export default function AgingStockView({ userId }: AgingStockViewProps) {
+  const t = useI18n();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Aging vehicles — sorted by daysInInventory desc on first render (Req 5.5)
   const { data, error, isLoading, mutate } = useSWR(
     vehicleKeys.aging(),
     fetchAgingVehicles,
     { shouldRetryOnError: false },
   );
 
-  // All actions — fetched once on page load to populate card badges
   const { data: allActionsData, mutate: mutateAllActions } = useSWR(
     vehicleActionKeys.all,
     fetchAllVehicleActions,
+    { shouldRetryOnError: false },
   );
 
-  // Actions for the selected vehicle (panel history)
   const { data: actionsData } = useSWR(
     selectedId ? vehicleActionKeys.byVehicle(selectedId) : null,
     selectedId ? () => fetchVehicleActions(selectedId) : null,
@@ -50,7 +50,6 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
     { column: 'daysInInventory', direction: 'desc' },
   );
 
-  // Build vehicleId -> latestAction map for card badges (API returns desc by createdAt)
   const latestActionMap = (allActionsData?.data ?? []).reduce(
     (map, a) => (map.has(a.vehicleId) ? map : map.set(a.vehicleId, a)),
     new Map<string, VehicleActionWithAuthor>(),
@@ -68,44 +67,36 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
       setPanelOpen(false);
       await Promise.all([mutate(), mutateAllActions()]);
     } catch (e) {
-      setSubmitError(
-        e instanceof ApiError ? e.message : 'Failed to save. Please try again.',
-      );
+      setSubmitError(e instanceof ApiError ? e.message : t('errors.submitFailed'));
     }
   }
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedId) ?? null;
   const panelHistory = selectedId
-    ? (actionsData?.data ?? []).sort((a, b) =>
-        b.createdAt.localeCompare(a.createdAt),
-      )
+    ? (actionsData?.data ?? []).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     : [];
 
   return (
     <div className="flex flex-col gap-4">
       <Typography variant="h6" fontWeight="bold">
-        Aging Stock
+        {t('nav.agingStock')}
       </Typography>
 
       {isLoading && (
-        <Typography color="text.secondary">Loading…</Typography>
+        <Typography color="text.secondary">{t('common.loading')}</Typography>
       )}
 
       {error && (
         <div className="flex flex-col gap-2">
-          <Alert severity="error">
-            Failed to load aging vehicles. Please try again.
-          </Alert>
+          <Alert severity="error">{t('errors.loadAgingVehiclesFailed')}</Alert>
           <Button variant="outlined" onClick={() => void mutate()}>
-            Retry
+            {t('actions.retry')}
           </Button>
         </div>
       )}
 
       {!isLoading && !error && vehicles.length === 0 && (
-        <Typography color="text.secondary">
-          No aging vehicles in inventory.
-        </Typography>
+        <Typography color="text.secondary">{t('errors.noAgingVehicles')}</Typography>
       )}
 
       <div className="flex flex-col gap-3">
@@ -125,7 +116,7 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
         title={
           selectedVehicle
             ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`
-            : 'Log Action'
+            : t('panel.logAction')
         }
         maxWidth="md"
       >

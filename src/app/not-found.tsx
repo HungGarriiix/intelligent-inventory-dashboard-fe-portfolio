@@ -1,10 +1,12 @@
+import { getTranslations } from 'next-intl/server';
 import ErrorPage from '@/components/common/ErrorPage';
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('errors');
   return (
     <ErrorPage
-      title="Page not found"
-      message="The page you're looking for doesn't exist."
+      title={t('notFound')}
+      message={t('notFoundMessage')}
       showHome
     />
   );

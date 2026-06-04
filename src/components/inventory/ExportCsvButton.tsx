@@ -6,6 +6,8 @@
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import { downloadCsv, generateCsv } from '@/lib/csvExport';
+import { CSV_DATE_FORMAT } from '@/lib/constants';
+import { useI18n } from '@/hooks/useI18n';
 import type { VehicleWithComputed } from '@/types/entities';
 
 interface ExportCsvButtonProps {
@@ -13,15 +15,17 @@ interface ExportCsvButtonProps {
 }
 
 export default function ExportCsvButton({ vehicles }: ExportCsvButtonProps) {
+  const t = useI18n();
+
   function handleExport(): void {
     const csv = generateCsv(vehicles);
-    const date = dayjs().format('YYYY-MM-DD');
+    const date = dayjs().format(CSV_DATE_FORMAT);
     downloadCsv(csv, date);
   }
 
   return (
     <Button variant="outlined" size="small" onClick={handleExport}>
-      Export CSV
+      {t('actions.export')}
     </Button>
   );
 }

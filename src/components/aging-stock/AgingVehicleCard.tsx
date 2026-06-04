@@ -5,6 +5,7 @@
 
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import ActionStatusBadge from './ActionStatusBadge';
+import { useI18n } from '@/hooks/useI18n';
 import type { VehicleAction, VehicleWithComputed } from '@/types/entities';
 
 interface AgingVehicleCardProps {
@@ -18,6 +19,7 @@ export default function AgingVehicleCard({
   latestAction,
   onSelect,
 }: AgingVehicleCardProps) {
+  const t = useI18n();
   return (
     <Card variant="outlined" className="w-full">
       <CardActionArea onClick={() => onSelect(vehicle.id)}>
@@ -35,9 +37,8 @@ export default function AgingVehicleCard({
           <div className="flex gap-6 mt-1">
             <span className="text-sm">
               <span className="font-medium text-orange-600">
-                {vehicle.daysInInventory}d
-              </span>{' '}
-              in inventory
+                {t('vehicle.daysInInventory', { days: vehicle.daysInInventory })}
+              </span>
             </span>
             <span className="text-sm">${vehicle.price.toLocaleString()}</span>
           </div>

@@ -17,15 +17,15 @@ import dayjs from 'dayjs';
 import type { CreateVehicleActionBody } from '@/types/api';
 import type { VehicleActionWithAuthor } from '@/types/entities';
 import { createVehicleActionSchema } from '@/schemas/vehicleAction';
+import { MAX_ACTION_LENGTH, MAX_NOTES_LENGTH, DATE_TIME_FORMAT } from '@/lib/constants';
+import { useI18n } from '@/hooks/useI18n';
 
-const MAX_ACTION = 500;
-const MAX_NOTES = 2000;
 const formSchema = createVehicleActionSchema.pick({ action: true, notes: true });
 
 interface VehicleActionPanelProps {
   vehicleId: string;
   userId: string;
-  history: VehicleActionWithAuthor[];      // ordered descending by caller
+  history: VehicleActionWithAuthor[];
   isLoading: boolean;
   submitError: string | null;
   onSubmit: (body: CreateVehicleActionBody) => void;
@@ -41,13 +41,13 @@ export default function VehicleActionPanel({
   onSubmit,
   onClose,
 }: VehicleActionPanelProps) {
+  const t = useI18n();
   const latestAction = history[0] ?? null;
 
   const [actionLabel, setActionLabel] = useState('');
   const [notes, setNotes] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Pre-populate from most-recent action (Req 7.1)
   useEffect(() => {
     if (latestAction) {
       setActionLabel(latestAction.action);
@@ -56,36 +56,35 @@ export default function VehicleActionPanel({
       setActionLabel('');
       setNotes('');
     }
-  }, [latestAction?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [latestAction?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- re-populate only on vehicle selection change, not on every content update
 
   function handleSubmit(): void {
-    const parsed = formSchema.safeParse({ action: actionLabel.trim(), notes });
+    const parsed = formSchema.safeParse({ action: actionLabel.trim(), notes: notes.trim() });
     if (!parsed.success) {
       setValidationError(parsed.error.issues[0].message);
       return;
     }
     setValidationError(null);
-    onSubmit({ vehicleId, userId, action: actionLabel.trim(), notes });
+    onSubmit({ vehicleId, userId, action: actionLabel.trim(), notes: notes.trim() });
   }
 
   return (
     <Stack spacing={2} sx={{ pt: 1 }}>
-      {/* Form */}
       <TextField
-        label="Action"
+        label={t('panel.actionLabel')}
         value={actionLabel}
         onChange={(e) => setActionLabel(e.target.value)}
-        inputProps={{ maxLength: MAX_ACTION }}
-        helperText={`${actionLabel.length}/${MAX_ACTION}`}
+        inputProps={{ maxLength: MAX_ACTION_LENGTH }}
+        helperText={`${actionLabel.length}/${MAX_ACTION_LENGTH}`}
         size="small"
         fullWidth
       />
       <TextField
-        label="Notes (optional)"
+        label={t('panel.notesOptionalLabel')}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        inputProps={{ maxLength: MAX_NOTES }}
-        helperText={`${notes.length}/${MAX_NOTES}`}
+        inputProps={{ maxLength: MAX_NOTES_LENGTH }}
+        helperText={`${notes.length}/${MAX_NOTES_LENGTH}`}
         multiline
         minRows={3}
         size="small"
@@ -97,25 +96,24 @@ export default function VehicleActionPanel({
 
       <div className="flex gap-2 justify-end">
         <Button variant="outlined" onClick={onClose}>
-          Cancel
+          {t('actions.cancel')}
         </Button>
         <Button variant="contained" onClick={handleSubmit} disabled={isLoading}>
-          Save
+          {t('actions.save')}
         </Button>
       </div>
 
-      {/* History */}
       {history.length > 0 && (
         <>
           <Divider />
-          <Typography variant="subtitle2">History</Typography>
+          <Typography variant="subtitle2">{t('panel.history')}</Typography>
           <Stack spacing={1}>
             {history.map((a) => (
               <div key={a.id} className="text-sm border rounded p-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{a.action}</span>
                   <span className="text-gray-400 text-xs">
-                    {dayjs(a.createdAt).format('YYYY-MM-DD HH:mm')} by{' '}
+                    {dayjs(a.createdAt).format(DATE_TIME_FORMAT)} {t('panel.loggedBy')}{' '}
                     {a.authorFullName}
                   </span>
                 </div>

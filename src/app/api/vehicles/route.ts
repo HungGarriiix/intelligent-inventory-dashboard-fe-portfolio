@@ -5,13 +5,12 @@ import { computeAgingFields } from '@/lib/agingUtils';
 import { readDealerships, readVehicles } from '@/lib/dataStore';
 import { applyFilters } from '@/lib/filterUtils';
 import { extractIp, generateCorrelationId, logger } from '@/lib/logger';
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants';
 import type { GetVehiclesResponse } from '@/types/api';
 import type { VehicleWithComputed } from '@/types/entities';
 import type { FilterState } from '@/types/ui';
 
 export const runtime = 'nodejs';
-
-const PAGE_SIZE = 25;
 
 export async function GET(req: Request): Promise<NextResponse> {
   const correlationId = generateCorrelationId();
@@ -46,13 +45,13 @@ export async function GET(req: Request): Promise<NextResponse> {
     const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     const data = returnAll
       ? filtered
-      : filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+      : filtered.slice((page - 1) * DEFAULT_PAGE_SIZE, page * DEFAULT_PAGE_SIZE);
 
     const result: GetVehiclesResponse = {
       data,
       total,
       page: returnAll ? 1 : page,
-      pageSize: returnAll ? total : PAGE_SIZE,
+      pageSize: returnAll ? total : DEFAULT_PAGE_SIZE,
     };
     return NextResponse.json(result, {
       status,

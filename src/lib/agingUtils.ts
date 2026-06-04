@@ -6,10 +6,11 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { Vehicle } from '@/types/entities';
+import { AGING_THRESHOLD_DAYS } from '@/lib/constants';
 
 dayjs.extend(utc);
 
-export const AGING_THRESHOLD_DAYS = 90;
+export { AGING_THRESHOLD_DAYS }; // re-exported for test backward-compat (agingUtils.test.ts imports from here)
 
 export function computeAgingFields(vehicle: Vehicle): {
   daysInInventory: number;

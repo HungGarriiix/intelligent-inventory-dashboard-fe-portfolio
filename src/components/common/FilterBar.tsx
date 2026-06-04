@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import type { FilterDefinition, FilterState } from '@/types/ui';
+import { useI18n } from '@/hooks/useI18n';
 
 interface FilterBarProps {
   filterDefs: FilterDefinition[];
@@ -23,6 +24,8 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({ filterDefs, value, onChange }: FilterBarProps) {
+  const t = useI18n();
+
   function handleSelect(key: string, next: string): void {
     onChange({ ...value, [key]: next });
   }
@@ -43,7 +46,7 @@ export default function FilterBar({ filterDefs, value, onChange }: FilterBarProp
                 }
               >
                 <MenuItem value="">
-                  <em>All</em>
+                  <em>{t('filters.all')}</em>
                 </MenuItem>
                 {def.options?.map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>

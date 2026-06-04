@@ -17,6 +17,7 @@ import type {
   GetVehicleActionsResponse,
 } from '@/types/api';
 import type { VehicleAction, VehicleActionWithAuthor } from '@/types/entities';
+import { VALIDATION_MESSAGES } from '@/lib/constants';
 import { createVehicleActionSchema } from '@/schemas/vehicleAction';
 
 export const runtime = 'nodejs';
@@ -73,7 +74,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     const raw: unknown = await req.json().catch(() => null);
     if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-      throw new ApiError(400, 'Request body must be a JSON object.', 'body');
+      throw new ApiError(400, VALIDATION_MESSAGES.invalidRequestBody, 'body');
     }
     const parsed = createVehicleActionSchema.safeParse(raw);
     if (!parsed.success) {

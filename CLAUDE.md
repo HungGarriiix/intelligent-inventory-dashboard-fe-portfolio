@@ -84,7 +84,8 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
     /inventory              AgingBadge, VehicleRow, InventoryFilters, ExportCsvButton
     /aging-stock            ActionStatusBadge, AgingVehicleCard, VehicleActionPanel
   /services                 ← vehicles.ts, dealerships.ts, vehicleActions.ts, auth.ts, apiClient.ts (ONLY place reading API_BASE_URL)
-  /lib                      ← agingUtils, logger, csvExport, filterUtils, sortUtils, dataStore, session
+  /lib                      ← agingUtils, logger, csvExport, filterUtils, sortUtils, dataStore, session, constants
+  /hooks                    ← useI18n.ts (wraps next-intl useTranslations; use in all client components for i18n)
   /schemas                  ← zod schemas split by entity: auth.ts, vehicleAction.ts (NOT in original spec — added for validation)
   /config/routes.ts         ← nav + route config (add a screen = add one entry here)
   /types                    ← entities.ts, api.ts, ui.ts
@@ -169,5 +170,9 @@ This is how we work in this repo:
   - **`ThemeToggle.tsx`** (new `common/` component): moon/sun inline-SVG toggle; placed left of `LogoutButton` in manager layout.
   - **`LogoutButton`** now accepts `className` prop (default `text-gray-600`); nav injects `text-nav-muted hover:text-nav-text`.
   - **`src/schemas/`** (new folder, not in original spec): `auth.ts` + `vehicleAction.ts` zod schemas. `LoginView` + `vehicle-actions` route + `auth/login` route all parse via these schemas; `VehicleActionPanel` `formSchema` hoisted to module scope.
-- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/` not in original spec/design (added for zod validation); `ThemeToggle` + dark mode not in spec (UI enhancement).
+- **Constant + i18n centralization (2026-06-04):**
+  - **`src/lib/constants.ts`** (new, not in spec): `AGING_THRESHOLD_DAYS`, `DEFAULT_PAGE_SIZE`, `MAX_ACTION_LENGTH`, `MAX_NOTES_LENGTH`, `DATE_TIME_FORMAT`, `CSV_DATE_FORMAT`, `VALIDATION_MESSAGES`. All schemas, API routes, and components import from here — no magic numbers elsewhere.
+  - **`src/hooks/useI18n.ts`** (new, not in spec): thin wrapper over `next-intl`'s `useTranslations()`. All client components use `const t = useI18n()` — zero hardcoded display strings in components/views. Server components (`not-found.tsx`) use `getTranslations()` from `next-intl/server` directly.
+  - **`messages/en.json`** extended: added `common.loading`, `actions.tryAgain`, `login.signingIn`, `panel.notesOptionalLabel`, `vehicle.daysInInventory` (ICU `{days}d in inventory`), `errors.loadVehiclesFailed`, `errors.loadAgingVehiclesFailed`, `table.aging`, `accessibility.switchToLight/switchToDark`.
+- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/` + `src/hooks/` + `src/lib/constants.ts` not in original spec/design (added for validation + i18n + centralization); `ThemeToggle` + dark mode not in spec (UI enhancement).
 - **Next up:** Task 6.2 — property tests for `GET /api/vehicles` (Props 3, 21, 24).

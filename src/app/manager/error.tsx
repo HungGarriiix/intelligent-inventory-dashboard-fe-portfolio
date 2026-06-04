@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import ErrorPage from '@/components/common/ErrorPage';
+import { useI18n } from '@/hooks/useI18n';
 
 export default function ManagerError({
   error,
@@ -10,14 +11,16 @@ export default function ManagerError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useI18n();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <ErrorPage
-      title="Something went wrong"
-      message="An unexpected error occurred. Please try again or return to the inventory."
+      title={t('errors.serverError')}
+      message={t('errors.serverErrorMessage')}
       showRetry
       onRetry={reset}
       showHome

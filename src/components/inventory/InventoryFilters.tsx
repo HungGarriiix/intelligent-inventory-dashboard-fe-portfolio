@@ -4,6 +4,7 @@
 // Dealership options are supplied from the parent via props.
 
 import FilterBar from '@/components/common/FilterBar';
+import { useI18n } from '@/hooks/useI18n';
 import type { Dealership } from '@/types/entities';
 import type { FilterDefinition, FilterState } from '@/types/ui';
 
@@ -22,33 +23,35 @@ export default function InventoryFilters({
   makes,
   models,
 }: InventoryFiltersProps) {
+  const t = useI18n();
+
   const filterDefs: FilterDefinition[] = [
     {
       key: 'dealership',
-      label: 'Dealership',
+      label: t('filters.dealership'),
       type: 'select',
       options: dealerships.map((d) => ({ value: d.id, label: d.name })),
       defaultValue: '',
     },
     {
       key: 'make',
-      label: 'Make',
+      label: t('filters.make'),
       type: 'select',
       options: makes.map((m) => ({ value: m, label: m })),
       defaultValue: '',
     },
     {
       key: 'model',
-      label: 'Model',
+      label: t('filters.model'),
       type: 'select',
       options: models.map((m) => ({ value: m, label: m })),
       defaultValue: '',
     },
     {
       key: 'age',
-      label: 'Age',
+      label: t('filters.age'),
       type: 'toggle',
-      toggleOptions: ['Non-Aging', 'Aging'],
+      toggleOptions: [t('filters.nonAging'), t('filters.aging')],
       defaultValue: '',
     },
   ];

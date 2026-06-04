@@ -6,8 +6,10 @@ import { login } from '@/services/auth';
 import { ApiError } from '@/types/api';
 import { routes } from '@/config/routes';
 import { loginSchema } from '@/schemas/auth';
+import { useI18n } from '@/hooks/useI18n';
 
 export default function LoginView() {
+  const t = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -26,9 +28,7 @@ export default function LoginView() {
       await login(email, password);
       window.location.href = routes.inventory.path;
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Invalid email or password.',
-      );
+      setError(err instanceof ApiError ? err.message : t('login.error'));
     } finally {
       setLoading(false);
     }
@@ -40,11 +40,11 @@ export default function LoginView() {
         <form onSubmit={(e) => { void handleSubmit(e); }}>
           <Stack spacing={3}>
             <Typography variant="h5" fontWeight="bold" textAlign="center">
-              Sign in
+              {t('login.title')}
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
             <TextField
-              label="Email"
+              label={t('login.email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -53,7 +53,7 @@ export default function LoginView() {
               autoComplete="email"
             />
             <TextField
-              label="Password"
+              label={t('login.password')}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -67,7 +67,7 @@ export default function LoginView() {
               fullWidth
               disabled={loading}
             >
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? t('login.signingIn') : t('login.submit')}
             </Button>
           </Stack>
         </form>
