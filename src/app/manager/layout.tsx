@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import LogoutButton from '@/components/common/LogoutButton';
+import ThemeToggle from '@/components/common/ThemeToggle';
 import { navItems } from '@/config/routes';
 
 export default async function ManagerLayout({
@@ -30,7 +31,10 @@ export default async function ManagerLayout({
             ))}
           </nav>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LogoutButton className="text-nav-muted hover:text-nav-text" />
+        </div>
       </header>
       <main className="flex-1 p-6">{children}</main>
     </div>

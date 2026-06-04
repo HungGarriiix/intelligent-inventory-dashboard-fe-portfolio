@@ -1,6 +1,6 @@
 # Project Status Report — Intelligent Inventory Dashboard
 
-> **Generated:** 2026-06-03 · **Updated:** 2026-06-03 · **Purpose:** Verified handoff of where the `spec-task-execution`
+> **Generated:** 2026-06-03 · **Updated:** 2026-06-04 · **Purpose:** Verified handoff of where the `spec-task-execution`
 > agent ("Kiro") stopped after suspension, plus all changes made since. **Wave 8 (deferred tests + final checkpoints) is now in progress.**
 
 ---
@@ -166,6 +166,14 @@ To unblock the Task 1 lint gate, the following infrastructure changes were made 
   must be verified before Checkpoint 7. Test 9.1 deferred.
 
 **Verified green (all waves):** `tsc --noEmit` ✅ · `eslint .` ✅ · `make lint` ✅ · `vitest run` ✅ (14 tests, utility-only — component/service/route property tests pending in Wave 8).
+
+- **UI + theme additions (2026-06-04, outside Wave tasks):**
+  - **Indigo theme:** MUI primary `#6366f1`, dark nav header `#1e1b4b`. Nav tokens as CSS vars (`globals.css`) + Tailwind `extend.colors`.
+  - **Dark mode system:** `tailwind.config.ts` `darkMode: 'class'`; `.dark {}` CSS block; `ThemeRegistry` rewritten — `ColorModeContext` + `useColorMode()` + dual MUI palettes + localStorage + `useEffect` class sync.
+  - **`ThemeToggle.tsx`** (new `src/components/common/`): inline SVG sun/moon toggle; renders left of `LogoutButton` in manager layout.
+  - **`LogoutButton`** gained `className` prop (default `text-gray-600`); nav passes `text-nav-muted hover:text-nav-text`.
+  - **`src/schemas/`** (new folder — deviation from spec): `auth.ts` + `vehicleAction.ts` zod schemas. Login view, `vehicle-actions` POST route, and `auth/login` route all use zod safeParse. `VehicleActionPanel` `formSchema` hoisted to module scope.
+  - `eslint .` + `tsc --noEmit` verified clean after all additions.
 
 **Open items flagged (not yet acted on):**
 - `next lint` is **deprecated** (removed in Next 16); it works on 15 but mutates `tsconfig.json` and

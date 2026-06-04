@@ -20,6 +20,7 @@ import { createVehicleActionSchema } from '@/schemas/vehicleAction';
 
 const MAX_ACTION = 500;
 const MAX_NOTES = 2000;
+const formSchema = createVehicleActionSchema.pick({ action: true, notes: true });
 
 interface VehicleActionPanelProps {
   vehicleId: string;
@@ -58,7 +59,6 @@ export default function VehicleActionPanel({
   }, [latestAction?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSubmit(): void {
-    const formSchema = createVehicleActionSchema.pick({ action: true, notes: true });
     const parsed = formSchema.safeParse({ action: actionLabel.trim(), notes });
     if (!parsed.success) {
       setValidationError(parsed.error.issues[0].message);

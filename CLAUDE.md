@@ -29,7 +29,7 @@ disagree, the spec wins unless `STATUS.md` records an intentional deviation.
 - **Next.js 15.5.19** (App Router) + **React 18.3.1** + **TypeScript 5**
   - ⚠️ Specs still say "Next 14"; we upgraded to 15 to fix the lint toolchain. `design.md` says "14+", which covers it.
 - **MUI 6** (`@mui/material`) + Emotion · **Tailwind 3** · **SWR** (client data) · **dayjs** (UTC date math)
-- **next-intl** (i18n, default locale `en`) · **iron-session** + **bcryptjs** (auth)
+- **next-intl** (i18n, default locale `en`) · **iron-session** + **bcryptjs** (auth) · **zod** (schema validation)
 - **ESLint 9** (flat config `eslint.config.mjs`) + `typescript-eslint` 8 + `eslint-config-next` 15
 - **Vitest 2** + **fast-check 3** (tests) — see Wave 0 gap below
 
@@ -80,10 +80,12 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
   /components
     /common                 ← prop-driven, zero screen/entity knowledge
       Table, Pagination, FilterBar, Badge, Modal, SearchInput, StatsBanner, ErrorPage
+      LogoutButton, ThemeRegistry, ThemeToggle, IntlProvider
     /inventory              AgingBadge, VehicleRow, InventoryFilters, ExportCsvButton
     /aging-stock            ActionStatusBadge, AgingVehicleCard, VehicleActionPanel
-  /services                 ← vehicles.ts, dealerships.ts, vehicleActions.ts (ONLY place reading API_BASE_URL)
-  /lib                      ← agingUtils, logger, csvExport, filterUtils, sortUtils
+  /services                 ← vehicles.ts, dealerships.ts, vehicleActions.ts, auth.ts, apiClient.ts (ONLY place reading API_BASE_URL)
+  /lib                      ← agingUtils, logger, csvExport, filterUtils, sortUtils, dataStore, session
+  /schemas                  ← zod schemas split by entity: auth.ts, vehicleAction.ts (NOT in original spec — added for validation)
   /config/routes.ts         ← nav + route config (add a screen = add one entry here)
   /types                    ← entities.ts, api.ts, ui.ts
   /data/*.json              ← users, dealerships, vehicles, vehicle-actions (source of truth)
@@ -161,5 +163,11 @@ This is how we work in this repo:
   - `middleware.ts` location: was at project root — ignored by Next.js 15 when `src/` exists. Moved to `src/middleware.ts`. Verified via `.next/server/middleware-manifest.json`.
   - CSP `EvalError`: Next.js dev HMR (`react-refresh-utils`) needs `'unsafe-eval'`. Added dev-only to `script-src` in `next.config.ts`.
   - `AgingStockView` action badges always showed "No Action Recorded" on page load (Req 5.4 broken). Root cause: `latestActionMap` built from per-vehicle SWR that only fired after a card was selected. Fixed: added `fetchAllVehicleActions()` service export + `vehicleActionKeys.all` SWR on page load; `latestActionMap` now built from all-actions response at mount.
-- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`.
+- **UI + theme additions (2026-06-04):**
+  - **Indigo theme:** MUI primary `#6366f1`, dark nav header `#1e1b4b`. Nav tokens centralized as CSS vars in `globals.css` + Tailwind `extend.colors` in `tailwind.config.ts`.
+  - **Dark mode:** `tailwind.config.ts` `darkMode: 'class'`; `.dark {}` block in `globals.css`; `ThemeRegistry` rewritten with `ColorModeContext` + `useColorMode()` hook + dual MUI palettes + localStorage persistence + `useEffect` `.dark` class sync.
+  - **`ThemeToggle.tsx`** (new `common/` component): moon/sun inline-SVG toggle; placed left of `LogoutButton` in manager layout.
+  - **`LogoutButton`** now accepts `className` prop (default `text-gray-600`); nav injects `text-nav-muted hover:text-nav-text`.
+  - **`src/schemas/`** (new folder, not in original spec): `auth.ts` + `vehicleAction.ts` zod schemas. `LoginView` + `vehicle-actions` route + `auth/login` route all parse via these schemas; `VehicleActionPanel` `formSchema` hoisted to module scope.
+- **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/` not in original spec/design (added for zod validation); `ThemeToggle` + dark mode not in spec (UI enhancement).
 - **Next up:** Task 6.2 — property tests for `GET /api/vehicles` (Props 3, 21, 24).

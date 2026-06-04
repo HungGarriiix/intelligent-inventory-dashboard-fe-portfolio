@@ -3,29 +3,70 @@
 // MUI + Emotion setup for Next.js App Router. Injects styles server-side to
 // prevent flash of unstyled content.
 
-import { useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import createCache, { type EmotionCache } from '@emotion/cache';
 import { useServerInsertedHTML } from 'next/navigation';
 import { CacheProvider } from '@emotion/react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import type { ReactNode } from 'react';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#6366f1',
-      light: '#818cf8',
-      dark: '#4f46e5',
-      contrastText: '#ffffff',
-    },
-    background: {
-      default: '#f1f5f9',
-      paper: '#ffffff',
-    },
-  },
+type ColorMode = 'light' | 'dark';
+
+interface ColorModeContextValue {
+  mode: ColorMode;
+  toggle: () => void;
+}
+
+const ColorModeContext = createContext<ColorModeContextValue>({
+  mode: 'light',
+  toggle: () => {},
 });
 
+export function useColorMode(): ColorModeContextValue {
+  return useContext(ColorModeContext);
+}
+
+const palettes = {
+  light: {
+    primary: { main: '#6366f1', light: '#818cf8', dark: '#4f46e5', contrastText: '#ffffff' },
+    background: { default: '#f1f5f9', paper: '#ffffff' },
+  },
+  dark: {
+    primary: { main: '#818cf8', light: '#a5b4fc', dark: '#6366f1', contrastText: '#ffffff' },
+    background: { default: '#0f172a', paper: '#1e293b' },
+  },
+};
+
 export default function ThemeRegistry({ children }: { children: ReactNode }) {
+  const [mode, setMode] = useState<ColorMode>(() => {
+    if (typeof window === 'undefined') return 'light';
+    return (localStorage.getItem('color-mode') as ColorMode | null) ?? 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+  }, [mode]);
+
+  const toggle = useCallback(() => {
+    setMode((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('color-mode', next);
+      return next;
+    });
+  }, []);
+
+  const theme = useMemo(
+    () => createTheme({ palette: { mode, ...palettes[mode] } }),
+    [mode],
+  );
+
   const [registry] = useState<{
     cache: EmotionCache;
     flush: () => string[];
@@ -66,11 +107,13 @@ export default function ThemeRegistry({ children }: { children: ReactNode }) {
   });
 
   return (
-    <CacheProvider value={registry.cache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    </CacheProvider>
+    <ColorModeContext.Provider value={{ mode, toggle }}>
+      <CacheProvider value={registry.cache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </CacheProvider>
+    </ColorModeContext.Provider>
   );
 }

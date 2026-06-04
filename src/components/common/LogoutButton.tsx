@@ -3,7 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { logout } from '@/services/auth';
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+  className?: string;
+}
+
+export default function LogoutButton({ className = 'text-gray-600 hover:text-gray-900' }: LogoutButtonProps) {
   const t = useTranslations('nav');
 
   async function handleLogout(): Promise<void> {
@@ -17,7 +21,7 @@ export default function LogoutButton() {
       onClick={() => {
         void handleLogout();
       }}
-      className="text-sm text-nav-muted hover:text-nav-text transition-colors"
+      className={`text-sm transition-colors ${className}`}
     >
       {t('logout')}
     </button>

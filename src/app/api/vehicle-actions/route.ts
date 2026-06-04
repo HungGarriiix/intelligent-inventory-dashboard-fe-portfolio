@@ -72,13 +72,16 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   try {
     const raw: unknown = await req.json().catch(() => null);
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new ApiError(400, 'Request body must be a JSON object.', 'body');
+    }
     const parsed = createVehicleActionSchema.safeParse(raw);
     if (!parsed.success) {
       const issue = parsed.error.issues[0];
       const field = issue.path[0] as string | undefined;
       throw new ApiError(400, issue.message, field);
     }
-    const { vehicleId, userId, action, notes = '' } = parsed.data;
+    const { vehicleId, userId, action, notes } = parsed.data;
 
     const [vehicles, users] = await Promise.all([readVehicles(), readUsers()]);
     if (!vehicles.some((v) => v.id === vehicleId)) {
