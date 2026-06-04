@@ -256,3 +256,20 @@ The application is built with Next.js (App Router) and TypeScript, backed by sta
 4. THE exported CSV file SHALL be named `inventory-export-{YYYY-MM-DD}.csv` where the date is the current date at the time of export.
 5. IF the filtered result set is empty, THEN THE Dashboard SHALL still generate a valid CSV file containing only the header row.
 6. WHEN a Manager clicks "Export CSV", THE Dashboard SHALL generate the file client-side without making an additional API request beyond what was already fetched for the current filtered view.
+
+---
+
+### Requirement 15: Vehicle Creation
+
+**User Story:** As a Manager, I want to add a new vehicle to the inventory directly from the inventory screen so that newly acquired vehicles are immediately visible in the dashboard without editing data files.
+
+#### Acceptance Criteria
+
+1. THE Inventory_List page SHALL display an "Add Vehicle" button that is always visible.
+2. WHEN a Manager clicks "Add Vehicle", THE Dashboard SHALL open a modal dialog with input fields for all required Vehicle properties.
+3. THE Vehicle creation form SHALL include the following fields: dealership (required, dropdown of existing dealerships), make, model, year, VIN (exactly 17 characters), trim, color, mileage, price, condition (`New` / `Used` / `CPO`), status (default `Available`), and date added to inventory (default: today's date).
+4. THE API SHALL expose a `POST /api/vehicles` endpoint that accepts a new Vehicle body, validates all required fields, persists the record to `vehicles.json`, and returns HTTP 201 with the created Vehicle (including computed `isAging` and `daysInInventory`).
+5. WHEN a Vehicle is successfully created, THE dialog SHALL close and THE Inventory_List SHALL refresh to include the new Vehicle without a full page reload (via SWR cache invalidation).
+6. IF the creation request fails, THE dialog SHALL display an inline error message and remain open so the Manager can retry.
+7. WHEN a `POST /api/vehicles` request body contains any invalid or missing required field, THE API SHALL return HTTP 400 with a JSON body containing a `field` key identifying the invalid field and a `message` key with a human-readable description; no write SHALL occur.
+8. WHEN a `POST /api/vehicles` request references a `dealershipId` that does not exist in the dealerships data file, THE API SHALL return HTTP 404.

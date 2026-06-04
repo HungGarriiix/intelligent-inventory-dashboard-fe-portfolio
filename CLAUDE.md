@@ -10,15 +10,16 @@ project state) and **`.kiro/specs/intelligent-inventory-dashboard/tasks.md`** (t
 **Intelligent Inventory Dashboard** — a Next.js (App Router) + TypeScript web app that gives
 dealership **Managers** a real-time view of vehicle stock across all dealerships.
 
-Three core capabilities:
+Four core capabilities:
 1. **Inventory list** — paginated, filterable, sortable table of all vehicles, with a stats banner and CSV export.
 2. **Aging-stock identification** — the system auto-computes `isAging` (vehicle in inventory **> 90 days**) and surfaces it inline + in a dedicated view.
 3. **Action logging** — Managers log/update a proposed action (e.g. "Price Reduction Planned") per aging vehicle, with author + timestamp and append-only history.
+4. **Vehicle creation** — Managers add new vehicles via a dialog (Add Vehicle button on the inventory screen); `POST /api/vehicles` validates, persists, and returns the new record with computed fields.
 
 Data is static JSON served through Next.js API routes; a **service layer** abstracts fetches so the
 backend can be swapped (e.g. ASP.NET) by changing one env var, `API_BASE_URL`.
 
-**Source of truth for scope:** `requirements.md` (14 requirements, EARS), `design.md` (architecture,
+**Source of truth for scope:** `requirements.md` (15 requirements, EARS), `design.md` (architecture,
 types, API contracts, 34 correctness properties), `PLANNING.md` (high-level). When code and spec
 disagree, the spec wins unless `STATUS.md` records an intentional deviation.
 
@@ -68,7 +69,7 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
       /inventory/page.tsx       → renders InventoryView
       /aging-stock/page.tsx     → renders AgingStockView
     /api
-      /vehicles/route.ts                GET (filters, pagination, pageSize=all)
+      /vehicles/route.ts                GET (filters, pagination, pageSize=all) + POST (create vehicle)
       /vehicles/aging/route.ts          GET
       /dealerships/route.ts             GET
       /vehicle-actions/route.ts         GET + POST
@@ -81,12 +82,12 @@ clean and is the future replacement. Type-aware linting is scoped to `**/*.{ts,t
     /common                 ← prop-driven, zero screen/entity knowledge
       Table, Pagination, FilterBar, Badge, Modal, SearchInput, StatsBanner, ErrorPage
       NavBar, LogoutButton, ThemeRegistry, ThemeToggle, IntlProvider
-    /inventory              AgingBadge, VehicleRow, InventoryFilters, ExportCsvButton
+    /inventory              AgingBadge, VehicleRow, InventoryFilters, ExportCsvButton, CreateVehicleDialog
     /aging-stock            ActionStatusBadge, AgingVehicleCard, VehicleActionPanel
   /services                 ← vehicles.ts, dealerships.ts, vehicleActions.ts, auth.ts, apiClient.ts (ONLY place reading API_BASE_URL)
   /lib                      ← agingUtils, logger, csvExport, filterUtils, sortUtils, dataStore, session, constants
   /hooks                    ← useI18n.ts (wraps next-intl useTranslations; use in all client components for i18n)
-  /schemas                  ← zod schemas split by entity: auth.ts, vehicleAction.ts (NOT in original spec — added for validation)
+  /schemas                  ← zod schemas split by entity: auth.ts, vehicleAction.ts, vehicle.ts (NOT in original spec — added for validation)
   /config/routes.ts         ← nav + route config (add a screen = add one entry here)
   /i18n/request.ts          ← next-intl server config (locale `en`, getMessageFallback, swallow load errors)
   /types                    ← entities.ts, api.ts, ui.ts
@@ -178,5 +179,13 @@ This is how we work in this repo:
   - **`src/lib/constants.ts`** (new, not in spec): all magic numbers + validation messages.
   - **`src/hooks/useI18n.ts`** (new, not in spec): `useTranslations()` wrapper. All client components use `const t = useI18n()`.
   - **`messages/en.json`** extended + dead keys removed (`errors.actionRequired`, `panel.notes`).
-- **Known deviations:** Next 15 vs spec "14+"; `middleware.ts` in `src/` not root; `next lint` deprecated; `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/`, `src/hooks/`, `src/lib/constants.ts`, `NavBar.tsx`, `ThemeToggle.tsx`, dark mode not in original spec; `actionedCount = 0` hardcoded (additional SWR deferred); Prop 25 tests `getMessageFallback` directly (next-intl formatter crashes on arbitrary strings in jsdom).
+- **Vehicle creation feature (2026-06-05, Req 15):**
+  - `POST /api/vehicles` — Zod v4 validation, `appendVehicle()`, 201 + `VehicleWithComputed`; Zod v4 fix: `.issues` not `.errors`.
+  - `src/schemas/vehicle.ts` — `createVehicleSchema` (VIN=17, year range, enum validation).
+  - `src/components/inventory/CreateVehicleDialog.tsx` — MUI Dialog, 12 fields, field-level errors.
+  - `InventoryView` — Add Vehicle button + `dialogOpen` state + `mutate` SWR invalidation.
+  - `CreateVehicleBody`/`CreateVehicleResponse` added to `api.ts`; `appendVehicle` added to `dataStore.ts`.
+  - `VIN_LENGTH`, `YEAR_MIN`, `YEAR_MAX`, 11 `VALIDATION_MESSAGES` added to `constants.ts`.
+  - `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` ✅ (35 tests, no new tests added for this feature).
+- **Known deviations:** Next 15 vs spec "14+"; `middleware.ts` in `src/` not root; `next lint` deprecated; `PLANNING.md` "Certified Pre-Owned" vs data `CPO`; `src/schemas/`, `src/hooks/`, `src/lib/constants.ts`, `NavBar.tsx`, `ThemeToggle.tsx`, dark mode not in original spec; `actionedCount = 0` hardcoded (additional SWR deferred); Prop 25 tests `getMessageFallback` directly (next-intl formatter crashes on arbitrary strings in jsdom); Req 15 (vehicle creation) added post-completion — not in original spec/tasks.
 - **Next up:** Nothing. Project complete.

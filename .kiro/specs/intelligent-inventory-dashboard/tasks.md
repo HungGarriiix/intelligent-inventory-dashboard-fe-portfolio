@@ -283,6 +283,20 @@ Incremental implementation of the Intelligent Inventory Dashboard in TypeScript/
   - Verify the smoke/architecture checks from the design: no `console.log` in `/src/app/api/**`, no direct `fetch` in views/components, no `API_BASE_URL` reference outside `/src/services/**`
   - Ensure all tests pass, ask the user if questions arise.
 
+- [x] 19. Implement vehicle creation (Requirement 15 — post-completion addition, 2026-06-05)
+  - [x] 19.1 Add `VIN_LENGTH`, `YEAR_MIN`, `YEAR_MAX`, and 11 new `VALIDATION_MESSAGES` entries to `/src/lib/constants.ts`
+  - [x] 19.2 Create `/src/schemas/vehicle.ts` — Zod v4 `createVehicleSchema` (all 12 fields, enum validation, VIN length, year range)
+  - [x] 19.3 Add `CreateVehicleBody` and `CreateVehicleResponse` to `/src/types/api.ts`
+  - [x] 19.4 Add `appendVehicle(vehicle: Vehicle)` to `/src/lib/dataStore.ts`
+  - [x] 19.5 Add `POST` handler to `/src/app/api/vehicles/route.ts` — validates via `createVehicleSchema`, checks dealership exists (404), generates UUID, persists via `appendVehicle`, returns 201 with `VehicleWithComputed`
+  - [x] 19.6 Add `createVehicle(body)` to `/src/services/vehicles.ts`
+  - [x] 19.7 Add `createVehicle` i18n keys (`actions.addVehicle`, `createVehicle.*`) to `/messages/en.json`
+  - [x] 19.8 Create `/src/components/inventory/CreateVehicleDialog.tsx` — MUI Dialog with 12 form fields, field-level error display, `onSuccess` callback
+  - [x] 19.9 Wire `CreateVehicleDialog` into `InventoryView.tsx` — Add Vehicle button + `dialogOpen` state + `mutate` from SWR
+  - ⚠️ **Zod v4 note:** `ZodError.issues` (not `.errors`); enum params accept plain string (not `errorMap`); number params use `error:` (not `invalid_type_error`)
+  - Verified: `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` ✅ (35 tests)
+  - _Requirements: 15.1–15.8_
+
 ---
 
 ## Notes
@@ -311,6 +325,8 @@ The following files/systems were added beyond the original spec. All additions a
 | `src/hooks/useI18n.ts` | `useTranslations()` wrapper; all client components import this |
 | `src/schemas/auth.ts` | Zod `loginSchema` for POST /api/auth/login validation |
 | `src/schemas/vehicleAction.ts` | Zod `createVehicleActionSchema` for POST /api/vehicle-actions validation |
+| `src/schemas/vehicle.ts` | Zod `createVehicleSchema` for POST /api/vehicles validation (Task 19) |
+| `src/components/inventory/CreateVehicleDialog.tsx` | MUI Dialog for new vehicle creation (Task 19) |
 | `src/i18n/request.ts` | next-intl server config: locale `en`, `getMessageFallback`, error swallowing |
 | `src/components/common/NavBar.tsx` | MUI AppBar nav with links, ThemeToggle, LogoutButton |
 | `src/components/common/ThemeRegistry.tsx` | MUI ThemeProvider + dark-mode body bg/color via useEffect |

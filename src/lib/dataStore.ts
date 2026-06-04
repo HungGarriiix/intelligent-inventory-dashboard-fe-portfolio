@@ -40,3 +40,14 @@ export async function appendVehicleAction(action: VehicleAction): Promise<void> 
     'utf-8',
   );
 }
+
+/** Appends a new Vehicle to vehicles.json. */
+export async function appendVehicle(vehicle: Vehicle): Promise<void> {
+  const vehicles = await readVehicles();
+  vehicles.push(vehicle);
+  await fs.writeFile(
+    path.join(DATA_DIR, 'vehicles.json'),
+    `${JSON.stringify(vehicles, null, 2)}\n`,
+    'utf-8',
+  );
+}

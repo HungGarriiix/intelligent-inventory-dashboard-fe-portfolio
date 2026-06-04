@@ -55,6 +55,26 @@ export interface CreateVehicleActionResponse {
   data: VehicleActionWithAuthor;
 }
 
+// --- POST /api/vehicles ---
+export interface CreateVehicleBody {
+  dealershipId: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+  trim: string;
+  color: string;
+  mileage: number;
+  price: number;
+  condition: 'New' | 'Used' | 'CPO';
+  status: 'Available' | 'Sold' | 'Reserved';
+  dateAddedToInventory?: string | null;
+}
+
+export interface CreateVehicleResponse {
+  data: VehicleWithComputed;
+}
+
 // --- Error response shape ---
 export interface ApiErrorResponse {
   field?: string; // identifies the missing/invalid field for 400s

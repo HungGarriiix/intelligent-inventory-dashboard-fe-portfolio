@@ -93,7 +93,7 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
       /inventory/page.tsx                ← Renders InventoryView
       /aging-stock/page.tsx              ← Renders AgingStockView (passes userId from session)
     /api
-      /vehicles/route.ts                 ← GET /api/vehicles
+      /vehicles/route.ts                 ← GET /api/vehicles + POST /api/vehicles
       /vehicles/aging/route.ts           ← GET /api/vehicles/aging
       /dealerships/route.ts              ← GET /api/dealerships
       /vehicle-actions/route.ts          ← GET + POST /api/vehicle-actions
@@ -126,6 +126,7 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
       VehicleRow.tsx
       AgingBadge.tsx
       ExportCsvButton.tsx                ← Always visible; client-side CSV generation, no extra API call
+      CreateVehicleDialog.tsx            ← MUI Dialog; 12-field form; calls POST /api/vehicles; onSuccess triggers SWR mutate
     /aging-stock
       AgingVehicleCard.tsx
       VehicleActionPanel.tsx
@@ -144,6 +145,7 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
   /schemas
     auth.ts                              ← Zod loginSchema
     vehicleAction.ts                     ← Zod createVehicleActionSchema (with char-limit rules)
+    vehicle.ts                           ← Zod createVehicleSchema (VIN=17, year range, enum validation)
 
   /config
     routes.ts
@@ -154,9 +156,9 @@ Internet ──► Nginx (HTTPS, TLS termination, security headers)
     csvExport.ts                         ← generateCsv() + downloadCsv(); client-side
     filterUtils.ts                       ← applyFilters(); pure AND-conjunction
     sortUtils.ts                         ← applySort<T>(); generic, pure
-    dataStore.ts                         ← readVehicles/readUsers/etc. + appendVehicleAction (JSON I/O)
+    dataStore.ts                         ← readVehicles/readUsers/etc. + appendVehicleAction + appendVehicle (JSON I/O)
     session.ts                           ← iron-session sessionOptions + SessionPayload + TTL
-    constants.ts                         ← AGING_THRESHOLD_DAYS, MAX_ACTION_LENGTH, DEFAULT_PAGE_SIZE, …
+    constants.ts                         ← AGING_THRESHOLD_DAYS, MAX_ACTION_LENGTH, DEFAULT_PAGE_SIZE, VIN_LENGTH, YEAR_MIN, YEAR_MAX, …
 
   /i18n
     request.ts                           ← next-intl server config (locale en, getMessageFallback, onError)
@@ -186,11 +188,13 @@ InventoryView (Client, owns all state)
 ├── StatsBanner          ← receives metric definitions as props
 ├── InventoryFilters     ← wraps FilterBar with inventory-specific filter defs
 │   └── FilterBar        ← purely prop-driven, emits onFilterChange
+├── [Add Vehicle button] ← opens CreateVehicleDialog
+├── ExportCsvButton      ← inline; calls generateCsv(allFilteredVehicles)
+├── CreateVehicleDialog  ← MUI Dialog; form for new vehicle; onSuccess → mutate()
 ├── Table                ← prop-driven; receives columns + rows
 │   └── VehicleRow[]     ← one per vehicle; renders AgingBadge when isAging
 │       └── AgingBadge
-├── Pagination           ← receives page, totalPages, onPageChange
-└── ExportCsvButton      ← inline; calls generateCsv(allFilteredVehicles)
+└── Pagination           ← receives page, totalPages, onPageChange
 ```
 
 ### Component Tree — Aging Stock View
@@ -371,6 +375,26 @@ export interface CreateVehicleActionBody {
 
 export interface CreateVehicleActionResponse {
   data: VehicleActionWithAuthor;
+}
+
+// --- POST /api/vehicles ---
+export interface CreateVehicleBody {
+  dealershipId: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;          // exactly 17 characters
+  trim: string;
+  color: string;
+  mileage: number;
+  price: number;
+  condition: VehicleCondition;
+  status: VehicleStatus;
+  dateAddedToInventory?: string | null; // defaults to today
+}
+
+export interface CreateVehicleResponse {
+  data: VehicleWithComputed;
 }
 
 // --- Error response shape ---
@@ -560,6 +584,54 @@ export interface SortState {
 }
 ```
 
+### POST /api/vehicles
+
+**Request body:**
+```json
+{
+  "dealershipId": "d1",
+  "make": "BMW",
+  "model": "M3",
+  "year": 2025,
+  "vin": "1HGBH41JXMN109186",
+  "trim": "Base",
+  "color": "Silver",
+  "mileage": 0,
+  "price": 75000,
+  "condition": "New",
+  "status": "Available",
+  "dateAddedToInventory": "2026-06-05"
+}
+```
+
+**Response 201:**
+```json
+{
+  "data": { /* VehicleWithComputed — includes id, isAging, daysInInventory, dealershipName */ }
+}
+```
+
+**Response 400 (validation failure):**
+```json
+{
+  "field": "vin",
+  "message": "VIN must be exactly 17 characters."
+}
+```
+
+**Response 404 (dealershipId not found):**
+```json
+{
+  "message": "Dealership with id 'd99' not found."
+}
+```
+
+**Notes:**
+- `id` generated server-side via `crypto.randomUUID()`
+- `dateAddedToInventory` defaults to today's ISO date if omitted or null
+- Route requires `export const runtime = 'nodejs'` (for `node:crypto`)
+- Zod `createVehicleSchema` validates all fields (from `src/schemas/vehicle.ts`)
+
 ---
 
 ## Service Layer Design
@@ -576,6 +648,10 @@ export async function fetchVehicles(
 ): Promise<GetVehiclesResponse> { ... }
 
 export async function fetchAgingVehicles(): Promise<GetAgingVehiclesResponse> { ... }
+
+export async function createVehicle(
+  body: CreateVehicleBody
+): Promise<CreateVehicleResponse> { ... }
 
 // SWR key factory — stable key for caching
 export const vehicleKeys = {

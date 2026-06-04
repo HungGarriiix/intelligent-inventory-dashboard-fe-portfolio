@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import StatsBanner from '@/components/common/StatsBanner';
 import Table from '@/components/common/Table';
 import Pagination from '@/components/common/Pagination';
 import InventoryFilters from '@/components/inventory/InventoryFilters';
 import ExportCsvButton from '@/components/inventory/ExportCsvButton';
+import CreateVehicleDialog from '@/components/inventory/CreateVehicleDialog';
 import { AgingCell, DaysCell, MileageCell, PriceCell } from '@/components/inventory/VehicleRow';
 import { applySort } from '@/lib/sortUtils';
 import { resetPageOnFilterChange } from '@/lib/filterUtils';
@@ -25,6 +26,7 @@ export default function InventoryView() {
   });
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortState>({ column: 'make', direction: 'asc' });
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const columns: ColumnDefinition<VehicleWithComputed>[] = [
     { key: 'dealershipName', label: t('table.dealership') },
@@ -53,7 +55,7 @@ export default function InventoryView() {
     }));
   }
 
-  const { data: allData, error, isLoading } = useSWR(
+  const { data: allData, error, isLoading, mutate } = useSWR(
     vehicleKeys.list({ ...filters, pageSize: 'all' }),
     () => fetchVehicles({ ...filters, pageSize: 'all' }),
   );
@@ -93,8 +95,20 @@ export default function InventoryView() {
           makes={makes}
           models={models}
         />
-        <ExportCsvButton vehicles={allVehicles} />
+        <div className="flex gap-2">
+          <Button variant="contained" onClick={() => setDialogOpen(true)}>
+            {t('actions.addVehicle')}
+          </Button>
+          <ExportCsvButton vehicles={allVehicles} />
+        </div>
       </div>
+
+      <CreateVehicleDialog
+        open={dialogOpen}
+        dealerships={dealerships}
+        onClose={() => setDialogOpen(false)}
+        onSuccess={() => { void mutate(); }}
+      />
 
       {isLoading && (
         <Typography color="text.secondary">{t('common.loading')}</Typography>

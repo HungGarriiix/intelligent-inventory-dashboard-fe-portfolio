@@ -4,6 +4,8 @@
 
 import { apiFetch } from './apiClient';
 import type {
+  CreateVehicleBody,
+  CreateVehicleResponse,
   GetAgingVehiclesResponse,
   GetVehiclesParams,
   GetVehiclesResponse,
@@ -29,6 +31,14 @@ export function fetchVehicles(
 
 export function fetchAgingVehicles(): Promise<GetAgingVehiclesResponse> {
   return apiFetch<GetAgingVehiclesResponse>('/vehicles/aging');
+}
+
+export function createVehicle(body: CreateVehicleBody): Promise<CreateVehicleResponse> {
+  return apiFetch<CreateVehicleResponse>('/vehicles', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
 // SWR key factories — stable cache keys.

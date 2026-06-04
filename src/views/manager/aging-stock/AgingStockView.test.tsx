@@ -57,9 +57,9 @@ test('Property 14: Aging vehicles initially sorted by daysInInventory descending
         mockUseSWR.mockImplementation((key) => {
           const k = JSON.stringify(key);
           if (k.includes('aging')) {
-            return { data: { data: vehicles }, error: null, isLoading: false, mutate: vi.fn() } as ReturnType<typeof useSWR>;
+            return { data: { data: vehicles }, error: null, isLoading: false, isValidating: false, mutate: vi.fn() } as ReturnType<typeof useSWR>;
           }
-          return { data: undefined, error: null, isLoading: false, mutate: vi.fn() } as ReturnType<typeof useSWR>;
+          return { data: undefined, error: null, isLoading: false, isValidating: false, mutate: vi.fn() } as ReturnType<typeof useSWR>;
         });
 
         const { container } = render(<AgingStockView userId="u1" />);

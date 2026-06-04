@@ -205,3 +205,25 @@ All waves complete. Only Wave 8 remains. Order of execution:
 | 15 | **Checkpoint 18** — `make lint` + grep guards (console.log / fetch / API_BASE_URL) | — | ✅ Done |
 
 **All 34 design-spec properties tested. 35 tests pass. Grep guards clean. Project complete.**
+
+---
+
+## 8. Post-completion addition — Vehicle Creation (Task 19, 2026-06-05)
+
+**Requirement 15** added after original Wave 1–8 completion. Fully implemented and verified.
+
+| File | Change |
+|---|---|
+| `src/lib/constants.ts` | Added `VIN_LENGTH=17`, `YEAR_MIN=1900`, `YEAR_MAX=currentYear+1`, 11 `VALIDATION_MESSAGES` entries |
+| `src/schemas/vehicle.ts` | New — Zod v4 `createVehicleSchema` (12 fields, enum validation, VIN length, year range) |
+| `src/types/api.ts` | Added `CreateVehicleBody`, `CreateVehicleResponse` |
+| `src/lib/dataStore.ts` | Added `appendVehicle(vehicle: Vehicle)` |
+| `src/app/api/vehicles/route.ts` | Added `POST` handler — Zod validation, dealership 404 check, UUID, `appendVehicle`, returns 201 |
+| `src/services/vehicles.ts` | Added `createVehicle(body)` |
+| `messages/en.json` | Added `actions.addVehicle` + `createVehicle.*` namespace |
+| `src/components/inventory/CreateVehicleDialog.tsx` | New — MUI Dialog, 12 form fields, field-level error display |
+| `src/views/manager/inventory/InventoryView.tsx` | Add Vehicle button + `dialogOpen` state + `mutate` from SWR |
+
+**Zod v4 pitfall (fixed):** `ZodError.issues` (not `.errors`); enum params accept plain string; number params use `error:` (not `invalid_type_error`).
+
+**Verified:** `tsc --noEmit` ✅ · `eslint .` ✅ · `vitest run` → 35 tests ✅ · `make lint` ✅
