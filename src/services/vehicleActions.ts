@@ -8,6 +8,10 @@ import type {
   GetVehicleActionsResponse,
 } from '@/types/api';
 
+export function fetchAllVehicleActions(): Promise<GetVehicleActionsResponse> {
+  return apiFetch<GetVehicleActionsResponse>('/vehicle-actions');
+}
+
 export function fetchVehicleActions(
   vehicleId: string,
 ): Promise<GetVehicleActionsResponse> {
@@ -27,5 +31,6 @@ export function createVehicleAction(
 }
 
 export const vehicleActionKeys = {
+  all: ['vehicle-actions'] as const,
   byVehicle: (vehicleId: string) => ['vehicle-actions', vehicleId] as const,
 };

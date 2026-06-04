@@ -9,11 +9,13 @@ import VehicleActionPanel from '@/components/aging-stock/VehicleActionPanel';
 import { applySort } from '@/lib/sortUtils';
 import { fetchAgingVehicles, vehicleKeys } from '@/services/vehicles';
 import {
+  fetchAllVehicleActions,
   fetchVehicleActions,
   createVehicleAction,
   vehicleActionKeys,
 } from '@/services/vehicleActions';
 import { ApiError } from '@/types/api';
+import type { VehicleActionWithAuthor } from '@/types/entities';
 
 interface AgingStockViewProps {
   userId: string;
@@ -31,6 +33,12 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
     { shouldRetryOnError: false },
   );
 
+  // All actions — fetched once on page load to populate card badges
+  const { data: allActionsData, mutate: mutateAllActions } = useSWR(
+    vehicleActionKeys.all,
+    fetchAllVehicleActions,
+  );
+
   // Actions for the selected vehicle (panel history)
   const { data: actionsData } = useSWR(
     selectedId ? vehicleActionKeys.byVehicle(selectedId) : null,
@@ -42,9 +50,10 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
     { column: 'daysInInventory', direction: 'desc' },
   );
 
-  // Build a map of vehicleId -> latestAction for the card badges
-  const latestActionMap = new Map(
-    (actionsData?.data ?? []).map((a) => [a.vehicleId, a]),
+  // Build vehicleId -> latestAction map for card badges (API returns desc by createdAt)
+  const latestActionMap = (allActionsData?.data ?? []).reduce(
+    (map, a) => (map.has(a.vehicleId) ? map : map.set(a.vehicleId, a)),
+    new Map<string, VehicleActionWithAuthor>(),
   );
 
   function handleSelect(vehicleId: string): void {
@@ -57,7 +66,7 @@ export default function AgingStockView({ userId }: AgingStockViewProps) {
     try {
       await createVehicleAction(body);
       setPanelOpen(false);
-      await mutate();
+      await Promise.all([mutate(), mutateAllActions()]);
     } catch (e) {
       setSubmitError(
         e instanceof ApiError ? e.message : 'Failed to save. Please try again.',

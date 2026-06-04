@@ -160,5 +160,6 @@ This is how we work in this repo:
   - `LoginView`: `router.push + router.refresh()` caused SWR remount → stuck `isLoading`. Fixed: `window.location.href`.
   - `middleware.ts` location: was at project root — ignored by Next.js 15 when `src/` exists. Moved to `src/middleware.ts`. Verified via `.next/server/middleware-manifest.json`.
   - CSP `EvalError`: Next.js dev HMR (`react-refresh-utils`) needs `'unsafe-eval'`. Added dev-only to `script-src` in `next.config.ts`.
+  - `AgingStockView` action badges always showed "No Action Recorded" on page load (Req 5.4 broken). Root cause: `latestActionMap` built from per-vehicle SWR that only fired after a card was selected. Fixed: added `fetchAllVehicleActions()` service export + `vehicleActionKeys.all` SWR on page load; `latestActionMap` now built from all-actions response at mount.
 - **Known deviations:** Next 15 vs spec "14" (covered by "14+"); `middleware.ts` in `src/` not root (spec says root); `next lint` deprecated (use `eslint .`); `PLANNING.md` "Certified Pre-Owned" vs data `CPO`.
 - **Next up:** Task 6.2 — property tests for `GET /api/vehicles` (Props 3, 21, 24).

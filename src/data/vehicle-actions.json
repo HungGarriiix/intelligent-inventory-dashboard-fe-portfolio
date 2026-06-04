@@ -133,5 +133,50 @@
     "notes": "Initiating CPO inspection and certification process",
     "createdAt": "2026-05-25T00:00:00.000Z",
     "updatedAt": "2026-05-25T00:00:00.000Z"
+  },
+  {
+    "id": "d7ff612f-ceb4-47e0-8f9b-b8d86d061f14",
+    "vehicleId": "v20",
+    "userId": "u3",
+    "action": "Sold",
+    "notes": "dsada",
+    "createdAt": "2026-06-04T12:20:53.215Z",
+    "updatedAt": "2026-06-04T12:20:53.215Z"
+  },
+  {
+    "id": "fdb559c6-cf98-446e-911e-2a537f9dd8e0",
+    "vehicleId": "v20",
+    "userId": "u3",
+    "action": "Sold",
+    "notes": "dsada",
+    "createdAt": "2026-06-04T12:35:54.525Z",
+    "updatedAt": "2026-06-04T12:35:54.525Z"
+  },
+  {
+    "id": "7fefa098-be9b-4a2f-ba1d-da801054b1ca",
+    "vehicleId": "v20",
+    "userId": "u3",
+    "action": "Gone",
+    "notes": "cccc",
+    "createdAt": "2026-06-04T12:36:05.628Z",
+    "updatedAt": "2026-06-04T12:36:05.628Z"
+  },
+  {
+    "id": "8d651111-dd77-4394-a9cb-0a3fe8bcef02",
+    "vehicleId": "v20",
+    "userId": "u3",
+    "action": "dsadasdxa",
+    "notes": "dsada",
+    "createdAt": "2026-06-04T12:36:15.414Z",
+    "updatedAt": "2026-06-04T12:36:15.414Z"
+  },
+  {
+    "id": "6325186d-da61-487d-b124-80f92843dbf9",
+    "vehicleId": "v20",
+    "userId": "u3",
+    "action": "Repaired",
+    "notes": "In 3 months",
+    "createdAt": "2026-06-04T13:02:47.831Z",
+    "updatedAt": "2026-06-04T13:02:47.831Z"
   }
 ]
